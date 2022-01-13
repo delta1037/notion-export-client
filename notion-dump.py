@@ -51,6 +51,8 @@ class NotionBackupGUI:
         self.dump_type = None
         self.export_child = None
         self.dump_path = None
+        self.page_parser_type = NotionDump.PARSER_TYPE_MD
+        self.db_parser_type = NotionDump.PARSER_TYPE_PLAIN
 
         # 配置获取
         self.config = None
@@ -96,7 +98,8 @@ class NotionBackupGUI:
         sys.stderr = self.stderr_bak
 
     def start_button_process(self):
-        # self.log_text.delete('1.0', 'end')
+        self.test_button["state"] = "disabled"
+        self.log_text.delete('1.0', 'end')
         # 从配置获取输入值
         self._read_config()
         if self.config is None:
@@ -116,10 +119,19 @@ class NotionBackupGUI:
             return
         self.export_child = self.get_key("export_child_page")
         self.dump_path = self.get_key("dump_path") + "/"
+
+        # 配置错误按照默认处理
+        if self.get_key("page_parser_type") == "plain":
+            self.page_parser_type = NotionDump.PARSER_TYPE_PLAIN
+        if self.get_key("db_parser_type") == "md":
+            self.page_parser_type = NotionDump.PARSER_TYPE_MD
+
         self.show_param()
         self.start_export()
+        self.test_button["state"] = "normal"
 
     def test_button_process(self):
+        self.test_button["state"] = "disabled"
         self.log_text.delete('1.0', 'end')
         self.token = TOKEN_TEST
         self.page_id = PAGE_MIX_ID
@@ -129,6 +141,7 @@ class NotionBackupGUI:
 
         self.show_param()
         self.start_export()
+        self.test_button["state"] = "normal"
 
     def show_param(self):
         self.debug_log("  token:" + self.token, level=LOG_INFO)
@@ -143,6 +156,14 @@ class NotionBackupGUI:
         self.debug_log("   type:" + type_str, level=LOG_INFO)
         self.debug_log("  recur:" + str(self.export_child), level=LOG_INFO)
         self.debug_log("   path:" + self.dump_path, level=LOG_INFO)
+        page_parser_s = "md"
+        if self.page_parser_type == NotionDump.PARSER_TYPE_PLAIN:
+            page_parser_s = "plain"
+        db_parser_s = "plain"
+        if self.db_parser_type == NotionDump.PARSER_TYPE_MD:
+            db_parser_s = "plain"
+        self.debug_log("page_parser:" + page_parser_s, level=LOG_INFO)
+        self.debug_log("  db_parser:" + db_parser_s, level=LOG_INFO)
 
     def start_export(self):
         query_handle = NotionQuery(token=self.token)

@@ -3,5 +3,7 @@
     "page_id" : "950e57e0507b4448a55a13b2f47f031f",
     "page_type" : "page",
     "export_child_page": true,
-    "dump_path": "./dumped_file"
+    "dump_path": "./dumped_file",
+    "page_parser_type": "md",
+    "db_parser_type": "plain"
 }
