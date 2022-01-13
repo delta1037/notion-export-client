@@ -1,0 +1,7 @@
+{
+    "token": "secret_WRLJ9xyEawNxzRhVHVWfciTl9FAyNCd29GMUvr2hQD4",
+    "page_id" : "950e57e0507b4448a55a13b2f47f031f",
+    "page_type" : "page",
+    "export_child_page": true,
+    "dump_path": "./dumped_file"
+}
