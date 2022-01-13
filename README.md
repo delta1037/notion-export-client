@@ -35,7 +35,7 @@
 
 **运行客户端**：
 
-![客户端界面]()
+![客户端界面](https://github.com/delta1037/notion-dump/blob/main/img/client-img.jpg)
 
 在**填好配置之后**，点击开始按钮即可开始备份，出现错误时先点击测试按钮看是否成功，如果成功可以在此项目中提交issue，并向Email：geniusrabbit@qq.com发送客户端目录下的`dump.log`，**注意删除其中的token部分**
 
