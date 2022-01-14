@@ -1,12 +1,14 @@
-# notion-dump
+# notion-dump-local
 
 基于notion-dump-kernel的一个实例，**注意该项目只做个人学习使用，官方API禁止解析API获取到的数据？**（use any scraping, data harvesting, web crawlers, or other data extraction methods to extract data from the API）（所以**建议不要对包含大量子页面的page进行导出**）
 
-## 描述
+## 一、描述
 
 - [ ] 对递归下载的notion指定页面将其中的链接重定位，形成一种内置的文件结构（见输出描述）
 
-## 使用
+## 二、使用
+
+## 2.1 客户端版本使用
 
 <font color=red>**使用前仔细看配置文件和如下配置说明**</font>
 
@@ -35,11 +37,57 @@
 
 **运行客户端**：
 
-![客户端界面](https://github.com/delta1037/notion-dump/blob/main/img/client-img.jpg)
+![客户端界面](https://github.com/delta1037/notion-dump-local/blob/main/img/client-img.jpg)
 
 在**填好配置之后**，点击开始按钮即可开始备份，出现错误时先点击测试按钮看是否成功，如果成功可以在此项目中提交issue，并向Email：geniusrabbit@qq.com发送客户端目录下的`dump.log`，**注意删除其中的token部分**
 
-## 输出
+
+
+### 2.2 接口版本使用
+
+接口版本封装了如下三个接口，其中参数自解释（或者看客户端参数配置和[notion-dump-kernel](https://github.com/delta1037/notion-dump-kernel)的参数说明）
+
+```python 
+# 1、初始化赋值
+def __init__(
+            self,
+            token=None,
+            page_id=None,
+            dump_path="./dumped_file",
+            dump_type=NotionDump.DUMP_TYPE_PAGE,
+            export_child=False,
+            page_parser_type=NotionDump.PARSER_TYPE_MD,
+            db_parser_type=NotionDump.PARSER_TYPE_PLAIN
+    )
+   
+   
+# 2、重新赋值
+def reset_param(
+            self,
+            token=None,
+            page_id=None,
+            dump_path=None,
+            dump_type=None,
+            export_child=None,
+            page_parser_type=None,
+            db_parser_type=None
+    )
+
+
+# 3、开始导出，或者导出前赋值
+def start_dump(
+            self,
+            token=None,
+            page_id=None,
+            dump_path=None,
+            dump_type=None,
+            export_child=None,
+            page_parser_type=None,
+            db_parser_type=None
+    )
+```
+
+## 三、输出
 
 下载主目录由用户决定，主目录下结构为
 ```powershell
@@ -47,5 +95,4 @@
 - databases/    # 所有导出的数据库（包含csv和一个markdown格式的数据库页面辅助定位文件）
 main.md         # 下载页面id（作为主页存在）
 ```
-
 

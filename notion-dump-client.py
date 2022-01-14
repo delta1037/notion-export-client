@@ -1,7 +1,7 @@
 # author: delta1037
 # Date: 2022/01/08
 # mail:geniusrabbit@qq.com
-# 打包代码 pyinstaller -F -w -i notion-dump.ico notion-dump.py
+# 打包代码 pyinstaller -F -w -i notion-dump.ico notion-dump-client.py
 
 import copy
 import json
@@ -19,10 +19,6 @@ from NotionDump.utils import common_op
 
 from tkinter import *
 import time
-
-TOKEN_TEST = "secret_WRLJ9xyEawNxzRhVHVWfciTl9FAyNCd29GMUvr2hQD4"
-PAGE_MIX_ID = "950e57e0507b4448a55a13b2f47f031f"
-DB_ID = "3b40cf6b60fc49edbe25740dd9a74af7"
 
 # 子目录的定制
 CHILD_PAGES_PATH = "./child_pages/"
@@ -42,8 +38,6 @@ class NotionBackupGUI:
         self.log_label = None
         # 开始按钮
         self.start_button = None
-        # 测试按钮
-        self.test_button = None
 
         # 变量部分
         self.token = None
@@ -76,10 +70,7 @@ class NotionBackupGUI:
         row_index += 1
         self.start_button = Button(self.init_window, text="开始", bg="lightblue", width=10,
                                    command=self.start_button_process)  # 调用内部方法  加()为直接调用
-        self.start_button.grid(row=row_index, column=1, pady=10, padx=100, sticky=tkinter.E)
-        self.test_button = Button(self.init_window, text="测试", bg="lightblue", width=10,
-                                  command=self.test_button_process)  # 调用内部方法  加()为直接调用
-        self.test_button.grid(row=row_index, column=1, pady=10, padx=100, sticky=tkinter.W)
+        self.start_button.grid(row=row_index, column=1, pady=10, padx=100)
 
     def get_key(self, key):
         return self.config.get(key)
@@ -98,7 +89,7 @@ class NotionBackupGUI:
         sys.stderr = self.stderr_bak
 
     def start_button_process(self):
-        self.test_button["state"] = "disabled"
+        self.start_button["state"] = "disabled"
         self.log_text.delete('1.0', 'end')
         # 从配置获取输入值
         self._read_config()
@@ -115,7 +106,7 @@ class NotionBackupGUI:
         elif type_str == "block":
             self.dump_type = NotionDump.DUMP_TYPE_BLOCK
         else:
-            self.debug_log("unknown type " + type_str)
+            self.debug_log("unknown type " + type_str, level=LOG_INFO)
             return
         self.export_child = self.get_key("export_child_page")
         self.dump_path = self.get_key("dump_path") + "/"
@@ -124,24 +115,11 @@ class NotionBackupGUI:
         if self.get_key("page_parser_type") == "plain":
             self.page_parser_type = NotionDump.PARSER_TYPE_PLAIN
         if self.get_key("db_parser_type") == "md":
-            self.page_parser_type = NotionDump.PARSER_TYPE_MD
+            self.db_parser_type = NotionDump.PARSER_TYPE_MD
 
         self.show_param()
         self.start_export()
-        self.test_button["state"] = "normal"
-
-    def test_button_process(self):
-        self.test_button["state"] = "disabled"
-        self.log_text.delete('1.0', 'end')
-        self.token = TOKEN_TEST
-        self.page_id = PAGE_MIX_ID
-        self.dump_type = NotionDump.DUMP_TYPE_PAGE
-        self.export_child = True
-        self.dump_path = "./dumped_file/"
-
-        self.show_param()
-        self.start_export()
-        self.test_button["state"] = "normal"
+        self.start_button["state"] = "normal"
 
     def show_param(self):
         self.debug_log("  token:" + self.token, level=LOG_INFO)
@@ -251,14 +229,6 @@ class NotionBackupGUI:
             file.writelines(line)
         file.close()
 
-    def find_dump_path(self, pages_handle, page_id):
-        if page_id not in pages_handle:
-            return ""
-        if pages_handle[page_id]["link_id"] != "":
-            return self.find_dump_path(pages_handle, pages_handle[page_id]["link_id"])
-        else:
-            return pages_handle[page_id]["local_path"]
-
     def find_true_id(self, pages_handle, page_id):
         if pages_handle[page_id]["link_id"] != "":
             return self.find_true_id(pages_handle, pages_handle[page_id]["link_id"])
@@ -267,7 +237,7 @@ class NotionBackupGUI:
 
     # 获取页面的链接 [页面名称](页面链接)  页面dump路径 页面系统路径
     def get_child_info(self, pages_handle, child_info, child_id, root_main=False, root_type="page"):
-        self.debug_log("> [START] get_child_info " + child_id)
+        self.debug_log("> [START] __get_child_info " + child_id)
         self.debug_log("> [START] root_main :" + str(root_main))
         self.debug_log("> [START] root_type :" + root_type)
 
@@ -288,7 +258,6 @@ class NotionBackupGUI:
         # 页面名称 用链接的名称
         # 页面位置 用实际的
         # dump路径 用实际的
-        # TODO 系统路径 （所以对于链接类型应该拷贝到哪？ 即 如何确定一个系统路径）
         if common_op.is_link_page(child_id, pages_handle[child_id]):
             self.debug_log("> page id:" + child_id + " is link page, get true page")
             self.debug_log("> link id:" + child_info["link_id"])
@@ -355,16 +324,16 @@ class NotionBackupGUI:
             self.debug_log("> page " + page_os_path + " exist in local, dont need copy")
             page_os_path = ""
 
-        self.debug_log("> [END] get_child_info page id " + child_id)
-        self.debug_log("> [END] get_child_info child_name :" + child_name)
-        self.debug_log("> [END] get_child_info child_link :" + child_link)
-        self.debug_log("> [END] get_child_info local_path :" + child_info["local_path"])
-        self.debug_log("> [END] get_child_info os_path :" + page_os_path)
+        self.debug_log("> [END] __get_child_info page id " + child_id)
+        self.debug_log("> [END] __get_child_info child_name :" + child_name)
+        self.debug_log("> [END] __get_child_info child_link :" + child_link)
+        self.debug_log("> [END] __get_child_info local_path :" + child_info["local_path"])
+        self.debug_log("> [END] __get_child_info os_path :" + page_os_path)
         return child_name, child_link, child_info["local_path"], page_os_path
 
     # 获取主页信息（导出的系统路径）
     def get_root_info(self, page_info, page_id):
-        self.debug_log("= [START] get_root_info " + page_id + " param info:")
+        self.debug_log("= [START] __get_root_info " + page_id + " param info:")
         self.debug_log("= [START] root_main :" + str(page_info["main_page"]))
         # 获取页面名称
         page_name = page_info["page_name"]
@@ -386,8 +355,8 @@ class NotionBackupGUI:
                 page_os_path = self.dump_path + CHILD_PAGES_PATH + page_name_suffix
             else:
                 page_os_path = self.dump_path + DATABASE_PATH + page_name_suffix
-        self.debug_log("= [END] get_root_info page_id " + page_id)
-        self.debug_log("= [END] get_root_info page_os_path :" + page_os_path)
+        self.debug_log("= [END] __get_root_info page_id " + page_id)
+        self.debug_log("= [END] __get_root_info page_os_path :" + page_os_path)
         return page_os_path
 
     # 该操作需要递归进行
@@ -403,8 +372,8 @@ class NotionBackupGUI:
             # 区分链接页面和非链接页面,link_id是链接页面ID,page_id是实际页面ID
             if common_op.is_link_page(page_id, pages_handle[page_id]):
                 true_id = self.find_true_id(pages_handle, page_id)
-                print("% relocate_child_page page id is:" + page_id)
-                print("% relocate_child_page true_id is:" + true_id)
+                print("% __relocate_child_page page id is:" + page_id)
+                print("% __relocate_child_page true_id is:" + true_id)
                 self.relocate_child_page(
                     pages_handle=pages_handle,
                     page_list=[true_id],
@@ -457,11 +426,11 @@ class NotionBackupGUI:
                     )
                 # 文件没有下载
                 if child_dump_path == "":
-                    self.debug_log("% relocate_child_page page " + child_id + " not dump success")
+                    self.debug_log("% __relocate_child_page page " + child_id + " not dump success")
                     continue
                 if child_os_path != "":
                     shutil.copyfile(child_dump_path, child_os_path)
-                    self.debug_log("% relocate_child_page copy " + child_dump_path + " to " + child_os_path, level=LOG_INFO)
+                    self.debug_log("% __relocate_child_page copy " + child_dump_path + " to " + child_os_path, level=LOG_INFO)
 
                 # 重定位主页中的链接
                 src_link = "[" + child_id + "]()"
