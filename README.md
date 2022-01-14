@@ -1,6 +1,6 @@
 # notion-dump
 
-基于notion-dump-kernel的一个实例
+基于notion-dump-kernel的一个实例，**注意该项目只做个人学习使用，官方API禁止解析API获取到的数据？**（use any scraping, data harvesting, web crawlers, or other data extraction methods to extract data from the API）（所以**建议不要对包含大量子页面的page进行导出**）
 
 ## 描述
 
@@ -48,9 +48,4 @@
 main.md         # 下载页面id（作为主页存在）
 ```
 
-
-
-## 其它
-
-[赞助页面](https://www.notion.so/delta1037/23f3a082ad2f4b53a6ef149e59e8b33e)
 
