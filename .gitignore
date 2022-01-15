@@ -131,3 +131,4 @@ dmypy.json
 .tmp/
 *_result.json
 release/
+config.json

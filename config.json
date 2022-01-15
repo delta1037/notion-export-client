@@ -1,9 +1,0 @@
-{
-    "token": "secret_xxxxxxxxxxxxxxxxxxxxxx",
-    "page_id" : "950e57e0507b44xxxxxxxxxxxxxxxxxxxxxxxxx",
-    "page_type" : "page",
-    "export_child_page": true,
-    "dump_path": "./dumped_file",
-    "page_parser_type": "md",
-    "db_parser_type": "plain"
-}
