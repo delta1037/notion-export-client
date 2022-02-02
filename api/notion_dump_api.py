@@ -3,7 +3,6 @@
 # mail:geniusrabbit@qq.com
 
 import copy
-import logging
 import os
 import shutil
 import time
@@ -14,11 +13,13 @@ from NotionDump.Dump.dump import Dump
 from NotionDump.Notion.Notion import NotionQuery
 from NotionDump.utils import common_op
 
+VERSION = "0.3"
 # 配置位置
 CONFIG_FILE_NAME = "../config.json"
 # 子目录的定制
 CHILD_PAGES_PATH = "./child_pages/"
 DATABASE_PATH = "./databases/"
+FILES_PATH = "./files/"
 
 # 日志等级
 LOG_DEBUG = 1
@@ -148,7 +149,7 @@ class NotionDumpApi:
         # 导出前先显示参数
         self.show_param()
         if not self.__check_variable():
-            self.show_log("param check fail, return")
+            self.show_log("param check fail, return", level=LOG_INFO)
 
         # 文件名安全测试
         test_file_name = "\\ / : * ? \" < > | ”"
@@ -159,8 +160,9 @@ class NotionDumpApi:
         self.__start_export()
 
     def show_param(self):
-        self.show_log("  token:" + self.__token, level=LOG_INFO)
-        self.show_log("page_id:" + self.__page_id)
+        self.show_log("version:" + VERSION, level=LOG_INFO)
+        self.show_log("  token:" + self.__token)
+        self.show_log("page_id:" + self.__page_id, level=LOG_INFO)
         type_str = "unknown"
         if self.__dump_type == NotionDump.DUMP_TYPE_PAGE:
             type_str = "DUMP_TYPE_PAGE"
@@ -189,7 +191,7 @@ class NotionDumpApi:
                 dump_type=self.__dump_type
             )
             # 将解析内容存储到文件中；返回内容存储为json文件
-            self.show_log("start dump to file ..., it may take a long time if you page is too big", level=LOG_INFO)
+            self.show_log("start dump to file ..., it may take a long time if you page is too many", level=LOG_INFO)
             page_detail_json = page_handle.dump_to_file()
             json_name = ".tmp/page_parser_result.json"
             common_op.save_json_to_file(handle=page_detail_json, json_name=json_name)
@@ -224,14 +226,15 @@ class NotionDumpApi:
         if not os.path.exists(DB_PATH):
             os.mkdir(DB_PATH)
 
-    @staticmethod
-    def __add_page_file_suffix(page_type, page_name):
-        if page_type == "page":
-            page_name += ".md"
-        elif page_type == "database":
-            page_name += ".csv"
-        else:
-            logging.exception("unknown page type, use none")
+        FILE_PATH = self.__dump_path + FILES_PATH
+        if not os.path.exists(FILE_PATH):
+            os.mkdir(FILE_PATH)
+
+    def __add_page_file_suffix(self, child_info, page_name):
+        local_path = child_info["local_path"]
+        local_filename = local_path[local_path.rfind('/'):]
+        page_name = page_name + local_filename[local_filename.find('.'):]
+        self.show_log("get page name:" + page_name)
         return page_name
 
     def __relocate_link(self, file_name, src_str, des_str):
@@ -313,7 +316,7 @@ class NotionDumpApi:
         # 到了这之后可以认为都是子页面（非链接）
         # 获取页面后缀,
         page_name_suffix = self.__get_safe_file_name(copy.deepcopy(child_name))
-        page_name_suffix = self.__add_page_file_suffix(child_info["type"], page_name_suffix)
+        page_name_suffix = self.__add_page_file_suffix(child_info, page_name_suffix)
         # 获取页面链接
         child_link = ""
         if root_main and child_main:
@@ -329,9 +332,12 @@ class NotionDumpApi:
             elif root_type == "database" and child_info["type"] == "page":
                 # 数据库中的子页面
                 child_link = "./" + CHILD_PAGES_PATH + page_name_suffix
+            elif root_type == "page" and (child_info["type"] == "image" or child_info["type"] == "file"):
+                # 主页面嵌套图片或者文件
+                child_link = "./" + FILES_PATH + page_name_suffix
             else:
                 # 数据库不能嵌套数据库
-                self.show_log("there may be a error")
+                self.show_log("> there may be a error", level=LOG_INFO)
         elif not root_main and child_main:
             # 子页面中调用了主页面
             child_link = "../" + page_name_suffix
@@ -345,21 +351,29 @@ class NotionDumpApi:
             elif root_type == "database" and child_info["type"] == "page":
                 # 数据库中的子页面
                 child_link = "../" + CHILD_PAGES_PATH + page_name_suffix
+            elif root_type == "page" and (child_info["type"] == "image" or child_info["type"] == "file"):
+                # 子页面嵌套图片或者文件
+                child_link = "../" + FILES_PATH + page_name_suffix
             else:
                 # 数据库不能嵌套数据库
-                self.show_log("there may be a error")
+                self.show_log("> there may be a error", level=LOG_INFO)
 
         # 获取系统路径
+        page_os_path = ""
         if root_main and child_main:  # child_info["main_page"]
             page_os_path = self.__dump_path + page_name_suffix
         else:
             if child_info["type"] == "page":
                 page_os_path = self.__dump_path + CHILD_PAGES_PATH + page_name_suffix
-            else:
+            elif child_info["type"] == "database":
                 page_os_path = self.__dump_path + DATABASE_PATH + page_name_suffix
+            elif child_info["type"] == "image" or child_info["type"] == "file":
+                page_os_path = self.__dump_path + FILES_PATH + page_name_suffix
+            else:
+                self.show_log("> there may be a error type" + child_info["type"], level=LOG_INFO)
         # 判断系统路径合法性
-        if os.path.exists(page_os_path):
-            self.show_log("> page " + page_os_path + " exist in local, dont need copy")
+        if page_os_path != "" and os.path.exists(page_os_path):
+            self.show_log("> page " + page_os_path + " exist in local, dont need copy", level=LOG_INFO)
             page_os_path = ""
 
         self.show_log("> [END] __get_child_info page id " + child_id)
@@ -383,7 +397,7 @@ class NotionDumpApi:
 
         # 给页面加个后缀;获取安全路径
         page_name_suffix = self.__get_safe_file_name(copy.deepcopy(page_name))
-        page_name_suffix = self.__add_page_file_suffix(page_info["type"], page_name_suffix)
+        page_name_suffix = self.__add_page_file_suffix(page_info, page_name_suffix)
 
         # 获取系统路径
         if page_info["main_page"]:
@@ -406,6 +420,10 @@ class NotionDumpApi:
             if pages_handle[page_id]["page_recursion"]:
                 continue
             pages_handle[page_id]["page_recursion"] = True
+
+            # 下载的文件不需要进一步处理
+            if pages_handle[page_id]["type"] == "file" or pages_handle[page_id]["type"] == "image":
+                continue
 
             # 要不要最后再处理 没有处理到的页面
             # 区分链接页面和非链接页面,link_id是链接页面ID,page_id是实际页面ID
@@ -465,7 +483,7 @@ class NotionDumpApi:
                     )
                 # 文件没有下载
                 if child_dump_path == "":
-                    self.show_log("% __relocate_child_page page " + child_id + " not dump success")
+                    self.show_log("% __relocate_child_page page " + child_id + " not dump success", level=LOG_INFO)
                     continue
                 if child_os_path != "":
                     shutil.copyfile(child_dump_path, child_os_path)
@@ -474,7 +492,12 @@ class NotionDumpApi:
                 # 重定位主页中的链接
                 src_link = "[" + child_id + "]()"
                 des_link = "[" + child_name + "](" + child_link + ")"
+                if pages_handle[child_id]["type"] == "image":
+                    # 图片类型链接
+                    des_link = "!" + des_link
                 self.__relocate_link(root_os_path, src_link, des_link)
+                self.show_log("% __relocate_link file " + root_os_path + ", from " + src_link + " to " + des_link,
+                              level=LOG_INFO)
 
                 # 写入数据库辅助定位信息
                 if root_md is not None:

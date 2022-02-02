@@ -1,6 +1,6 @@
 # notion-dump-local
 
-基于notion-dump-kernel的一个实例，**注意该项目只做个人学习使用，官方API禁止解析API获取到的数据？**（use any scraping, data harvesting, web crawlers, or other data extraction methods to extract data from the API）（所以**建议不要对包含大量子页面的page进行导出**）
+基于notion-dump-kernel的一个实例（在下载页面并解析的基础上对下载页面内的链接进行重定位），用于递归导出notion页面（页面内几乎所有内容详细见测试页面）为Markdown&CSV格式
 
 ## 一、描述
 
@@ -93,6 +93,7 @@ def start_dump(
 ```powershell
 - child_pages/  # 所有的子页面（包括数据库中的子页面）
 - databases/    # 所有导出的数据库（包含csv和一个markdown格式的数据库页面辅助定位文件）
+- files/        # 所有的图片和文件
 main.md         # 下载页面id（作为主页存在）
 ```
 
