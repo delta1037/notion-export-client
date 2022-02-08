@@ -52,7 +52,7 @@ class NotionDumpApi:
         self.__db_parser_type = db_parser_type
 
         self.__query_handle = self.__init_query_handle()
-    
+
     @staticmethod
     def show_log(debug_str, level=LOG_DEBUG):
         current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
@@ -63,7 +63,7 @@ class NotionDumpApi:
         with open('dump.log', 'a+', encoding='utf-8') as f:
             f.write(log_msg_in + "\n")
         f.close()
-        
+
     def __init_query_handle(self):
         if self.__token is None:
             return None
@@ -87,13 +87,14 @@ class NotionDumpApi:
         if self.__dump_type != NotionDump.DUMP_TYPE_PAGE:
             self.show_log("dump only support page now", level=LOG_INFO)
             return False
-        if self.__export_child is not True or self.__export_child is not False:
+        if self.__export_child is not True and self.__export_child is not False:
             self.show_log("export_child type error", level=LOG_INFO)
+            self.show_log(self.__export_child, level=LOG_INFO)
             return False
-        if self.__page_parser_type != NotionDump.PARSER_TYPE_MD or self.__page_parser_type != NotionDump.PARSER_TYPE_PLAIN:
+        if self.__page_parser_type != NotionDump.PARSER_TYPE_MD and self.__page_parser_type != NotionDump.PARSER_TYPE_PLAIN:
             self.show_log("page_parser_type error", level=LOG_INFO)
             return False
-        if self.__db_parser_type != NotionDump.PARSER_TYPE_MD or self.__db_parser_type != NotionDump.PARSER_TYPE_PLAIN:
+        if self.__db_parser_type != NotionDump.PARSER_TYPE_MD and self.__db_parser_type != NotionDump.PARSER_TYPE_PLAIN:
             self.show_log("db_parser_type error", level=LOG_INFO)
             return False
         return True
@@ -150,6 +151,7 @@ class NotionDumpApi:
         self.show_param()
         if not self.__check_variable():
             self.show_log("param check fail, return", level=LOG_INFO)
+            return
 
         # 文件名安全测试
         test_file_name = "\\ / : * ? \" < > | ”"

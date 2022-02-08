@@ -132,3 +132,4 @@ dmypy.json
 *_result.json
 release/
 config.json
+dumped_pages/
