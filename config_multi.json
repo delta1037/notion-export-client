@@ -1,0 +1,21 @@
+{
+    "dump_token": "secret_WRLJ9xxxxxxxxxxxxxxxxxxxx",
+    "backup_info_token" : "secret_WRLJ9xxxxxxxxxxxxxxxxxxxx",
+    "backup_list_id" : "b70a415f82384d3cbb3e240ca84fc1cd",
+    "backup_log_id" : "26eda87ee96a48dca29f4df5764a5667",
+    "backup_list_map": {
+        "page_id": "页面ID",
+        "page_type": "页面类型",
+        "dump_path": "备份位置",
+        "export_child_page": "递归备份",
+        "page_parser_type": "页面备份类型",
+        "db_parser_type": "数据库备份类型",
+        "dump_status": "备份"
+    },
+    "backup_log_map": {
+        "title": "时间戳",
+        "date": "备份时间",
+        "status": "备份状态",
+        "log": "备注"
+    }
+}

@@ -78,10 +78,10 @@ class NotionDumpApi:
     def __check_variable(self):
         if self.__query_handle is None:
             return False
-        if self.__page_id is None:
+        if self.__page_id is None or self.__page_id == "":
             self.show_log("page_id is null", level=LOG_INFO)
             return False
-        if self.__dump_path is None:
+        if self.__dump_path is None or self.__dump_path == "":
             self.show_log("dump_path is null", level=LOG_INFO)
             return False
         if self.__dump_type != NotionDump.DUMP_TYPE_PAGE:
@@ -111,8 +111,10 @@ class NotionDumpApi:
             db_parser_type=None
     ):
         if token is not None:
-            self.__token = token
-            self.__query_handle = self.__init_query_handle()
+            if self.__token is None or self.__token != token:
+                self.show_log("init or reinit query handle", level=LOG_INFO)
+                self.__token = token
+                self.__query_handle = self.__init_query_handle()
         if page_id is not None:
             self.__page_id = page_id
         if dump_path is not None:
