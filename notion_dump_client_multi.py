@@ -122,13 +122,17 @@ class NotionBackupGUI:
         backup_list = backup_handle.get_backup_list()
         if len(backup_list) == 0:
             backup_handle.add_backup_log(status=True, log="没有需要备份的内容")
-            exit(0)
+            self.start_button["state"] = "normal"
+            print("没有需要备份的内容")
+            return
 
         dump_log = ""
         # dump api
         dump_api = NotionDumpApi()
+        success_back_list = []
         # 逐个解析需要备份的内容
         for backup in backup_list:
+            item_id = backup["_page_id"]
             # 校验内容调用备份
             _page_id = backup[backup_list_map["page_id"]]
             _dump_type_str = backup[backup_list_map["page_type"]]
@@ -141,7 +145,7 @@ class NotionBackupGUI:
                 print("unknown dump type " + _dump_type_str)
                 if dump_log != "":
                     dump_log += "\n"
-                dump_log += "unknown dump type " + _dump_type_str
+                dump_log += "id:" + _page_id + " unknown dump type " + _dump_type_str
                 continue
             _export_child = False
             if backup[backup_list_map["export_child_page"]] == "true":
@@ -157,7 +161,7 @@ class NotionBackupGUI:
                 _db_parser_type = NotionDump.PARSER_TYPE_MD
 
             # 启动导出
-            dump_api.start_dump(
+            ret_status = dump_api.start_dump(
                 token=dump_token,
                 page_id=_page_id,
                 dump_path=_dump_path,
@@ -165,9 +169,16 @@ class NotionBackupGUI:
                 export_child=_export_child,
                 page_parser_type=_page_parser_type,
                 db_parser_type=_db_parser_type)
+            if dump_log != "":
+                dump_log += "\n"
+            if ret_status:
+                success_back_list.append(item_id)
+                dump_log += "id:" + _page_id + " backup success "
+            else:
+                dump_log += "id:" + _page_id + " backup fail "
 
         # 更新备份列表
-        backup_handle.update_backup_list()
+        backup_handle.update_backup_list(success_back_list)
 
         # 新增备份日志
         if dump_log != "":

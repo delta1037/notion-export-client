@@ -72,10 +72,9 @@ class BackupInfo:
                 self.backup_id_list.append(item_line)
         return self.backup_id_list
 
-    def update_backup_list(self):
+    def update_backup_list(self, id_list):
         properties = {self.__backup_list_map["dump_status"]: {"checkbox": False}}
-        for item_line in self.backup_id_list:
+        for _id in id_list:
             # 更新每一个页面的备份状态
-            if "_page_id" in item_line.keys():
-                self.notion.pages.update(page_id=item_line["_page_id"], properties=properties)
+            self.notion.pages.update(page_id=_id, properties=properties)
 

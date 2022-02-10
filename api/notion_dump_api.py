@@ -153,7 +153,7 @@ class NotionDumpApi:
         self.show_param()
         if not self.__check_variable():
             self.show_log("param check fail, return", level=LOG_INFO)
-            return
+            return False
 
         # 文件名安全测试
         test_file_name = "\\ / : * ? \" < > | ”"
@@ -161,7 +161,7 @@ class NotionDumpApi:
             "filename replace reg: from " + test_file_name + " to " + self.__get_safe_file_name(test_file_name),
             level=LOG_INFO)
         # 开始导出
-        self.__start_export()
+        return self.__start_export()
 
     def show_param(self):
         self.show_log("version:" + VERSION, level=LOG_INFO)
@@ -206,6 +206,11 @@ class NotionDumpApi:
             with open(json_name, "r", encoding="utf-8") as f:
                 page_detail_json = json.load(f)
 
+        # 主页不存在，可能是导出失败
+        if self.__page_id not in page_detail_json.keys():
+            self.show_log("page dump fail, can't find main page ", level=LOG_INFO)
+            return False
+
         # 生成文件目录
         self.__gen_dir()
         main_page_list = [self.__page_id]
@@ -216,11 +221,12 @@ class NotionDumpApi:
         self.show_log("start relocate link in file...", level=LOG_INFO)
         self.__relocate_child_page(page_detail_json, main_page_list, is_main=True)
         self.show_log("file link relocate success, check path :" + self.__dump_path, level=LOG_INFO)
+        return True
 
     # 创建文件目录
     def __gen_dir(self):
         if not os.path.exists(self.__dump_path):
-            os.mkdir(self.__dump_path)
+            os.makedirs(self.__dump_path)
 
         CHILD_PATH = self.__dump_path + CHILD_PAGES_PATH
         if not os.path.exists(CHILD_PATH):
@@ -449,12 +455,16 @@ class NotionDumpApi:
             # 判断实际页面是否成功导出
             if not page_info["dumped"]:
                 self.show_log("% page:" + page_id + " not export success", level=LOG_INFO)
-                return False
+                continue
+            # 如果文件不存在(成功导出但是内容为空则不会有本地文件)
+            if page_info["local_path"] == "":
+                self.show_log("% page:" + page_id + " local_path is null", level=LOG_INFO)
+                continue
 
             # 链接页面校准
             if page_info["main_page"] != is_main:
                 self.show_log("% page:" + page_id + " page attribute main_page conflict", level=LOG_INFO)
-                return False
+                continue
             # 根路径是不是主页，如果链接到主页面那么程序不会到这里的，前面已经置flag了
             root_page_main = page_info["main_page"]
             self.show_log("% page id " + page_id + " main page flag " + str(root_page_main))
