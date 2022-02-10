@@ -75,6 +75,11 @@ class NotionBackupGUI:
         return True
 
     def write(self, log_msg):
+        # 将所有内容写入到文件
+        with open('dump.log', 'a+', encoding='utf-8') as f:
+            f.write(log_msg)
+        f.close()
+
         log_msg_in = str(log_msg) + "\n"  # 换行
         self.log_text.insert(END, log_msg_in)
         self.log_text.update()

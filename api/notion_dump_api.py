@@ -60,10 +60,6 @@ class NotionDumpApi:
         if level == LOG_INFO:
             print(log_msg_in)
 
-        with open('dump.log', 'a+', encoding='utf-8') as f:
-            f.write(log_msg_in + "\n")
-        f.close()
-
     def __init_query_handle(self):
         if self.__token is None:
             return None
