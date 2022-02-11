@@ -80,8 +80,8 @@ class NotionDumpApi:
         if self.__dump_path is None or self.__dump_path == "":
             self.show_log("dump_path is null", level=LOG_INFO)
             return False
-        if self.__dump_type != NotionDump.DUMP_TYPE_PAGE:
-            self.show_log("dump only support page now", level=LOG_INFO)
+        if self.__dump_type != NotionDump.DUMP_TYPE_PAGE and self.__dump_type != NotionDump.DUMP_TYPE_DB_TABLE:
+            self.show_log("dump only support page&database now", level=LOG_INFO)
             return False
         if self.__export_child is not True and self.__export_child is not False:
             self.show_log("export_child type error", level=LOG_INFO)
@@ -506,6 +506,9 @@ class NotionDumpApi:
                     if pages_handle[child_id]["type"] == "image":
                         # 图片类型链接
                         des_link = "!" + des_link
+                    elif pages_handle[child_id]["type"] == "database":
+                        # 新增一个辅助路径文件
+                        des_link += "\n" + "[" + child_name + "](" + child_link[0:child_link.rfind(".")] + ".md" + ")"
                 else:
                     des_link = child_name
                 if page_info["type"] == "database":
