@@ -492,25 +492,31 @@ class NotionDumpApi:
                         root_type=page_info["type"]
                     )
                 # 文件没有下载
-                if child_dump_path == "":
-                    self.show_log("% __relocate_child_page page " + child_id + " not dump success", level=LOG_INFO)
-                    continue
-                if child_os_path != "":
+                # if child_dump_path == "":
+                #     self.show_log("% __relocate_child_page page " + child_id + " not dump success", level=LOG_INFO)
+                #     continue
+                if child_os_path != "" and child_dump_path != "":
                     shutil.copyfile(child_dump_path, child_os_path)
                     self.show_log("% __relocate_child_page copy " + child_dump_path + " to " + child_os_path, level=LOG_INFO)
 
                 # 重定位主页中的链接
                 src_link = "[" + child_id + "]()"
-                des_link = "[" + child_name + "](" + child_link + ")"
-                if pages_handle[child_id]["type"] == "image":
-                    # 图片类型链接
-                    des_link = "!" + des_link
-                self.__relocate_link(root_os_path, src_link, des_link)
+                if child_dump_path != "":
+                    des_link = "[" + child_name + "](" + child_link + ")"
+                    if pages_handle[child_id]["type"] == "image":
+                        # 图片类型链接
+                        des_link = "!" + des_link
+                else:
+                    des_link = child_name
+                if page_info["type"] == "database":
+                    self.__relocate_link(root_os_path, src_link, child_name)
+                else:
+                    self.__relocate_link(root_os_path, src_link, des_link)
                 self.show_log("% __relocate_link file " + root_os_path + ", from " + src_link + " to " + des_link,
                               level=LOG_INFO)
 
                 # 写入数据库辅助定位信息
-                if root_md is not None:
+                if root_md is not None and child_dump_path != "":
                     root_md.write(des_link + "\n\n")
 
             if root_md is not None:
