@@ -1,5 +1,5 @@
 # author: delta1037
-# Date: 2022/01/08
+# Date: 2022/02/10
 # mail:geniusrabbit@qq.com
 # 打包代码 pyinstaller -F -w -i notion-dump.ico notion_dump_client_multi.py -p api/notion_dump_api.py -p api/backup_info.py
 import json
@@ -80,7 +80,7 @@ class NotionBackupGUI:
             f.write(log_msg)
         f.close()
 
-        log_msg_in = str(log_msg) + "\n"  # 换行
+        log_msg_in = str(log_msg)
         self.log_text.insert(END, log_msg_in)
         self.log_text.update()
         self.log_text.see(END)

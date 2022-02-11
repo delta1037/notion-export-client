@@ -79,7 +79,7 @@ class NotionBackupGUI:
             f.write(log_msg)
         f.close()
 
-        log_msg_in = str(log_msg) + "\n"  # 换行
+        log_msg_in = str(log_msg)
         self.log_text.insert(END, log_msg_in)
         self.log_text.update()
         self.log_text.see(END)
