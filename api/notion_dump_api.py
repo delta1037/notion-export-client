@@ -59,14 +59,14 @@ class NotionDumpApi:
         #     "parent_key_id": "key_id",   # 父文件需要插入的位置
         #     "database_os_path": "path"   # 子文件位置
         # }
-        self.__db_relocate_list = []  # db_relocate_item 组成的list
+        self.__db_relocate_dic = {}  # db_relocate_item 组成的list
 
     @staticmethod
     def show_log(debug_str, level=LOG_DEBUG):
         current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         log_msg_in = str(current_time) + " " + str(debug_str)
-        if level == LOG_INFO:
-            print(log_msg_in)
+        # if level == LOG_INFO:
+        print(log_msg_in)
 
     def __init_query_handle(self):
         if self.__token is None:
@@ -254,7 +254,7 @@ class NotionDumpApi:
             os.mkdir(FILE_PATH)
 
     def __add_page_file_suffix(self, child_info, page_name):
-        if child_info["type"] == "image" or child_info["type"] == "file":
+        if (child_info["type"] == "image" or child_info["type"] == "file") and page_name.find('.') != -1:
             return page_name
         local_path = child_info["local_path"]
         local_filename = local_path[local_path.rfind('/'):]
@@ -306,22 +306,13 @@ class NotionDumpApi:
     def __get_child_info(self, pages_handle, child_info, child_id, root_main=False, root_type="page"):
         self.show_log("> [START] __get_child_info " + child_id)
         self.show_log("> [START] root_main :" + str(root_main))
+        self.show_log("> [START] child_main :" + str(child_info["main_page"]))
         self.show_log("> [START] root_type :" + root_type)
 
         child_main = child_info["main_page"]
 
         # 获取页面名称
-        # 链接页面会获取到链接名称，如果没有就用id做名称（一般链接不存在没有名称的情况）
-        # 实际页面会获取到页面名，如果没有，主页面就用main_page,其它页面就用id
         child_name = child_info["page_name"]
-        if child_name == "":
-            # 如果没名字，用ID做名字
-            child_name = child_id
-            # 是主页而不是主页过来的链接才起个主页名；否则用id做名字
-            # if root_main and not common_op.is_link_page(child_id, pages_handle[child_id]):
-            #     child_name = "main_page"
-            # else:
-            #     child_name = child_id
 
         # 如果子页面是一个链接类型
         # 页面名称 用链接的名称
@@ -339,7 +330,13 @@ class NotionDumpApi:
                     root_main=root_main,
                     root_type=root_type
                 )
+            if child_name == "":
+                child_name = l_name
             return child_name, l_link, l_dump_path, l_os_path
+
+        if child_name == "":
+            # 如果没名字，用ID做名字
+            child_name = child_id
 
         # 到了这之后可以认为都是子页面（非链接）
         # 获取页面后缀,
@@ -351,63 +348,34 @@ class NotionDumpApi:
             # 主页里面包含了自己（这里是主页里面有链接是自己）
             child_link = "./" + page_name_suffix
         elif root_main and not child_main:
-            # 主页中的子页面，重定位链接
-            if root_type == "page" and child_info["type"] == "page":
+            # 子页面，重定位链接
+            if child_info["type"] == "page":
                 child_link = "./" + CHILD_PAGES_PATH + page_name_suffix
-            elif root_type == "page" and child_info["type"] == "database":
+            elif child_info["type"] == "database":
                 # 主页面嵌套数据库
-                if self.__db_parser_type == NotionDump.PARSER_TYPE_MD:
-                    child_link = "./" + page_name_suffix
-                else:
-                    child_link = "./" + DATABASE_PATH + page_name_suffix
-            elif root_type == "database" and child_info["type"] == "page":
-                # 数据库中的子页面
-                child_link = "./" + CHILD_PAGES_PATH + page_name_suffix
+                child_link = "./" + DATABASE_PATH + page_name_suffix
             elif child_info["type"] == "image" or child_info["type"] == "file":
                 # 主页面嵌套图片或者文件
                 child_link = "./" + FILES_PATH + page_name_suffix
             else:
-                # 数据库不能嵌套数据库
-                self.show_log("> there may be a error", level=LOG_INFO)
+                # 无法识别的子页面类型
+                self.show_log("> child type error : " + child_info["type"], level=LOG_INFO)
         elif not root_main and child_main:
-            # 子页面中调用了主页面( TODO 如果身在主页的数据库里的某一个链接调用了主页，这里就可能会出错)
+            # 子页面中调用了主页面
             child_link = "../" + page_name_suffix
-            # if "_main_page_db" in child_info.keys():
-            #     # 主页的数据库，调用了主页
-            #     child_link = "./" + page_name_suffix
-            # else:
-            #     # 不是数据库或者不是主页的数据库调用了主页
-            #     child_link = "../" + page_name_suffix
         else:
-            if root_type == "page" and child_info["type"] == "page":
-                # 子页面中的子页面
-                child_link = "./" + page_name_suffix
-            elif root_type == "page" and child_info["type"] == "database":
-                # 子页面嵌套数据库
-                if self.__db_parser_type == NotionDump.PARSER_TYPE_MD:
-                    # 随便写，链接会被重置为数据库
-                    child_link = "./" + page_name_suffix
-                else:
-                    child_link = "../" + DATABASE_PATH + page_name_suffix
-            elif root_type == "database" and child_info["type"] == "page":
-                # 数据库中的子页面
-                child_link = "./" + page_name_suffix
-                # if self.__db_parser_type == NotionDump.PARSER_TYPE_MD:
-                #     # TODO 如果是主页中包含的数据库中的子页面这里就会出错
-                #     if "_main_page_db" in child_info.keys():
-                #         # 主页的数据库，调用了子页面
-                #         child_link = "./" + CHILD_PAGES_PATH + page_name_suffix
-                #     else:
-                #         # 不是数据库或者不是主页的数据库调用了主页
-                #         child_link = "./" + page_name_suffix
-                # else:
-                #     child_link = "../" + CHILD_PAGES_PATH + page_name_suffix
+            if child_info["type"] == "page":
+                # 子页面
+                child_link = "../" + CHILD_PAGES_PATH + page_name_suffix
+            elif child_info["type"] == "database":
+                # 子数据库
+                child_link = "../" + DATABASE_PATH + page_name_suffix
             elif child_info["type"] == "image" or child_info["type"] == "file":
                 # 子页面嵌套图片或者文件
                 child_link = "../" + FILES_PATH + page_name_suffix
             else:
-                # 数据库不能嵌套数据库
-                self.show_log("> there may be a error", level=LOG_INFO)
+                # 无法识别的子页面类型
+                self.show_log("> child type error : " + child_info["type"], level=LOG_INFO)
 
         # 获取系统路径
         page_os_path = ""
@@ -420,11 +388,6 @@ class NotionDumpApi:
                 page_os_path = self.__dump_path + CHILD_PAGES_PATH + page_name_suffix
             elif child_info["type"] == "database":
                 page_os_path = self.__dump_path + DATABASE_PATH + page_name_suffix
-                # if self.__db_parser_type == NotionDump.PARSER_TYPE_MD:
-                #     # 如果是导出的md文件就先暂存到 page 文件夹
-                #     page_os_path = self.__dump_path + CHILD_PAGES_PATH + page_name_suffix
-                # else:
-                #     page_os_path = self.__dump_path + DATABASE_PATH + page_name_suffix
             elif child_info["type"] == "image" or child_info["type"] == "file":
                 page_os_path = self.__dump_path + FILES_PATH + page_name_suffix
             else:
@@ -465,10 +428,6 @@ class NotionDumpApi:
                 page_os_path = self.__dump_path + CHILD_PAGES_PATH + page_name_suffix
             else:
                 page_os_path = self.__dump_path + DATABASE_PATH + page_name_suffix
-            # if page_info["type"] == "page" or self.__db_parser_type == NotionDump.PARSER_TYPE_MD:
-            #     page_os_path = self.__dump_path + CHILD_PAGES_PATH + page_name_suffix
-            # else:
-            #     page_os_path = self.__dump_path + DATABASE_PATH + page_name_suffix
 
         self.show_log("= [END] __get_root_info page_id " + page_id)
         self.show_log("= [END] __get_root_info page_os_path :" + page_os_path)
@@ -542,7 +501,8 @@ class NotionDumpApi:
             # 获取到所有的子页面id 将主页中的子页面进行重定位，获取实际链接
             for child_id in page_info["child_pages"]:
                 # 如果是子id是主页面包含的数据库，给子页面添加 额外的标志位
-                if self.__db_parser_type == NotionDump.PARSER_TYPE_MD and is_main and pages_handle[child_id]["type"] == "database":
+                if self.__db_parser_type == NotionDump.PARSER_TYPE_MD \
+                        and is_main and pages_handle[child_id]["type"] == "database":
                     pages_handle[child_id]["_main_page_db"] = "true"
                     pages_handle[child_id]["main_page"] = True
 
@@ -576,15 +536,19 @@ class NotionDumpApi:
                 self.show_log("% __relocate_link file " + root_os_path + ", from " + src_link + " to " + des_link,
                               level=LOG_INFO)
 
-                # 记录需要重定位的数据库
-                if self.__db_parser_type == NotionDump.PARSER_TYPE_MD and pages_handle[child_id]["type"] == "database" and child_os_path != "":
-                    self.__db_relocate_list.append({
-                        "parent_os_path": root_os_path,
-                        "parent_key_id": des_link,
-                        "database_os_path": child_os_path,
-                        "database_name": child_name
-                    })
-                    self.show_log(self.__db_relocate_list, level=LOG_INFO)
+                # 记录需要重定位的数据库(要求：md格式，数据库，已下载，非链接类型，)
+                if self.__db_parser_type == NotionDump.PARSER_TYPE_MD \
+                        and pages_handle[child_id]["type"] == "database" \
+                        and child_os_path != "" \
+                        and not common_op.is_link_page(child_id, pages_handle[child_id]):
+                    if child_os_path not in self.__db_relocate_dic.keys():
+                        self.__db_relocate_dic[child_os_path] = {}
+                    if "parent_os_path" not in self.__db_relocate_dic[child_os_path].keys():
+                        self.__db_relocate_dic[child_os_path]["parent_os_path"] = []
+                    self.__db_relocate_dic[child_os_path]["parent_os_path"].append(root_os_path)
+                    self.__db_relocate_dic[child_os_path]["parent_key_id"] = des_link
+                    self.__db_relocate_dic[child_os_path]["database_name"] = child_name
+                    self.show_log(self.__db_relocate_dic)
 
                 # 写入数据库辅助定位信息
                 if root_md is not None and child_dump_path != "":
@@ -599,15 +563,17 @@ class NotionDumpApi:
 
     def __relocate_db(self):
         # 根据 __db_relocate_list 记录的内容，对相关的文件重新定位即可
-        for db_rel_item in self.__db_relocate_list:
-            md_file = db_rel_item["parent_os_path"]
-            md_key = db_rel_item["parent_key_id"]
-            file = open(db_rel_item["database_os_path"], 'r', encoding='utf-8')
-            db_all_line = "#### " + db_rel_item["database_name"] + "\n" + file.read()
+        for db_os_path in self.__db_relocate_dic.keys():
+            file = open(db_os_path, 'r', encoding='utf-8')
+            db_all_line = "##### " + self.__db_relocate_dic[db_os_path]["database_name"] + "\n" + file.read()
             file.close()
+            for p_os_path in self.__db_relocate_dic[db_os_path]["parent_os_path"]:
+                md_file = p_os_path
+                md_key = self.__db_relocate_dic[db_os_path]["parent_key_id"]
 
-            # 将数据库内容插入到原来的位置,替换成标题加表格的形式
-            self.__relocate_link(md_file, md_key, db_all_line, show_log=False)
+                # 将数据库内容插入到原来的位置,替换成标题加表格的形式
+                self.__relocate_link(md_file, md_key, db_all_line, show_log=False)
 
             # 删除新增的数据库表格
-            os.remove(db_rel_item["database_os_path"])
+            # if "db_be_rel" not in self.__db_relocate_dic[db_os_path].keys():
+            #     os.remove(db_os_path)
