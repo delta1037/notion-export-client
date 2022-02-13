@@ -1,7 +1,7 @@
 # author: delta1037
 # Date: 2022/01/08
 # mail:geniusrabbit@qq.com
-# 打包代码 pyinstaller -F -w -i notion-dump.ico notion_dump_client.py -p api/notion_dump_api.py
+# 打包代码 pyinstaller -F -w -i notion-dump.ico notion_dump_client_single.py -p api/notion_dump_api.py
 import json
 import sys
 import tkinter

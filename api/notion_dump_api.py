@@ -65,8 +65,8 @@ class NotionDumpApi:
     def show_log(debug_str, level=LOG_DEBUG):
         current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         log_msg_in = str(current_time) + " " + str(debug_str)
-        # if level == LOG_INFO:
-        print(log_msg_in)
+        if level == LOG_INFO:
+            print(log_msg_in)
 
     def __init_query_handle(self):
         if self.__token is None:
@@ -219,7 +219,7 @@ class NotionDumpApi:
         self.__gen_dir()
         main_page_list = [self.__page_id]
         dump_path_last_no_path = self.__dump_path[0:self.__dump_path.rfind('/')]
-        dump_path_last = dump_path_last_no_path[dump_path_last_no_path.rfind('/')+1:]
+        dump_path_last = dump_path_last_no_path[dump_path_last_no_path.rfind('/') + 1:]
         self.show_log("page dump main page name: " + dump_path_last, level=LOG_INFO)
         if dump_path_last == "":
             page_detail_json[self.__page_id]["page_name"] = "main_page"
@@ -238,6 +238,10 @@ class NotionDumpApi:
 
     # 创建文件目录
     def __gen_dir(self):
+        if os.path.exists(self.__dump_path):
+            self.show_log("remove dir " + self.__dump_path, level=LOG_INFO)
+            # 删除已存在的文件，如果已存在内容，默认是对其进行覆盖
+            shutil.rmtree(self.__dump_path)
         if not os.path.exists(self.__dump_path):
             os.makedirs(self.__dump_path)
 
@@ -402,6 +406,12 @@ class NotionDumpApi:
         self.show_log("> [END] __get_child_info child_link :" + child_link)
         self.show_log("> [END] __get_child_info local_path :" + child_info["local_path"])
         self.show_log("> [END] __get_child_info os_path :" + page_os_path)
+        child_link = os.path.normpath(child_link).replace('\\', '/')
+        if child_link == ".":
+            child_link = ""
+        page_os_path = os.path.normpath(page_os_path).replace('\\', '/')
+        if page_os_path == ".":
+            page_os_path = ""
         return child_name, child_link, child_info["local_path"], page_os_path
 
     # 获取主页信息（导出的系统路径）
@@ -431,6 +441,9 @@ class NotionDumpApi:
 
         self.show_log("= [END] __get_root_info page_id " + page_id)
         self.show_log("= [END] __get_root_info page_os_path :" + page_os_path)
+        page_os_path = os.path.normpath(page_os_path).replace('\\', '/')
+        if page_os_path == ".":
+            page_os_path = ""
         return page_os_path
 
     # 该操作需要递归进行
@@ -484,9 +497,10 @@ class NotionDumpApi:
             # 获取主页的系统路径（根据导出位置计算） # 拷贝dump的文件到导出位置
             root_os_path = self.__get_root_info(page_info=page_info, page_id=page_id)
             if not os.path.exists(root_os_path):
-                shutil.copyfile(page_info["local_path"], root_os_path)
                 self.show_log("% __relocate_child_page <root> copy " + page_info["local_path"] + " to " + root_os_path,
                               level=LOG_INFO)
+                shutil.copyfile(page_info["local_path"], root_os_path)
+
             else:
                 self.show_log("file " + root_os_path + " is exist ???")
 
@@ -517,8 +531,9 @@ class NotionDumpApi:
                     )
 
                 if child_os_path != "" and child_dump_path != "":
+                    self.show_log("% __relocate_child_page copy " + child_dump_path + " to " + child_os_path,
+                                  level=LOG_INFO)
                     shutil.copyfile(child_dump_path, child_os_path)
-                    self.show_log("% __relocate_child_page copy " + child_dump_path + " to " + child_os_path, level=LOG_INFO)
 
                 # 重定位主页中的链接
                 src_link = "[" + child_id + "]()"
@@ -527,14 +542,15 @@ class NotionDumpApi:
                     if pages_handle[child_id]["type"] == "image":
                         # 图片类型链接
                         des_link = "!" + des_link
-                    elif pages_handle[child_id]["type"] == "database" and self.__db_parser_type != NotionDump.PARSER_TYPE_MD:
+                    elif pages_handle[child_id]["type"] == "database" \
+                            and self.__db_parser_type != NotionDump.PARSER_TYPE_MD:
                         # 新增一个辅助路径文件
                         des_link += "\n" + "[" + child_name + "](" + child_link[0:child_link.rfind(".")] + ".md" + ")"
                 else:
                     des_link = child_name
-                self.__relocate_link(root_os_path, src_link, des_link)
                 self.show_log("% __relocate_link file " + root_os_path + ", from " + src_link + " to " + des_link,
                               level=LOG_INFO)
+                self.__relocate_link(root_os_path, src_link, des_link)
 
                 # 记录需要重定位的数据库(要求：md格式，数据库，已下载，非链接类型，)
                 if self.__db_parser_type == NotionDump.PARSER_TYPE_MD \
@@ -548,7 +564,6 @@ class NotionDumpApi:
                     self.__db_relocate_dic[child_os_path]["parent_os_path"].append(root_os_path)
                     self.__db_relocate_dic[child_os_path]["parent_key_id"] = des_link
                     self.__db_relocate_dic[child_os_path]["database_name"] = child_name
-                    self.show_log(self.__db_relocate_dic)
 
                 # 写入数据库辅助定位信息
                 if root_md is not None and child_dump_path != "":
@@ -564,6 +579,8 @@ class NotionDumpApi:
     def __relocate_db(self):
         # 根据 __db_relocate_list 记录的内容，对相关的文件重新定位即可
         for db_os_path in self.__db_relocate_dic.keys():
+            if not os.path.exists(db_os_path):
+                continue
             file = open(db_os_path, 'r', encoding='utf-8')
             db_all_line = "##### " + self.__db_relocate_dic[db_os_path]["database_name"] + "\n" + file.read()
             file.close()
