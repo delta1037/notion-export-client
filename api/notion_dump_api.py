@@ -54,11 +54,6 @@ class NotionDumpApi:
         self.__query_handle = self.__init_query_handle()
 
         # 记录数据库插入到嵌入改数据库md文件的位置
-        # db_relocate_item = {
-        #     "parent_os_path": "path",    # 父文件位置
-        #     "parent_key_id": "key_id",   # 父文件需要插入的位置
-        #     "database_os_path": "path"   # 子文件位置
-        # }
         self.__db_relocate_dic = {}  # db_relocate_item 组成的list
 
     @staticmethod

@@ -1,27 +1,37 @@
 # notion-dump-local
 
-基于[notion-dump-kernel](https://github.com/delta1037/notion-dump-kernel)的实例
+[中文版](https://github.com/delta1037/notion-dump-local/blob/main/README_zh.md)
 
-功能：
+Backup tool base on [notion-dump-kernel](https://github.com/delta1037/notion-dump-kernel). It use official API and integration token. 
 
--   将notion页面转换为本地的markdown文件
--   对markdown文件中的链接（子页面、图片、文件）进行重新定位
+**You should know the backup file cant restore to notion. Its completely local. **
 
-## 版本
 
-分为单个页面导出和多个页面导出两个版本
 
--   单个页面转换（[README](https://github.com/delta1037/notion-dump-local/blob/main/README_single.md)）
--   多个页面转换（更强悍）（[README](https://github.com/delta1037/notion-dump-local/blob/main/README_multi.md)）
+Functions：
 
-## 文件说明
+-   convert notion page or database to markdown file（you can choose csv type for database）
+-   relocate link(sub-pages, image, files) in markdown file (relocate to local url)
 
-备份 == 转换
+## Version
 
-- api/backup_info.py: 备份页面清单管理（修改清单备份状态，新增备份历史记录）
-- api/notion_dump_api.py: 对notion-dump-kernel下载的文件重新组合位置并对文件中的链接（子页面、图片、文件）之类的重新定位
-- notion_dump_server_single.py: 单个页面备份脚本（命令行配置定时任务）
-- notion_dump_client_single.py:单个页面备份客户端（图形界面，挺简陋的）
-- notion_dump_server_multi.py:多个页面备份脚本（命令行配置定时任务）
-- notion_dump_client_multi.py:多个页面备份客户端（图形界面，挺简陋的）
+Single page convert GUI / Multi page convert GUI
+
+-   Single page convert GUI（[README](https://github.com/delta1037/notion-dump-local/blob/main/README_single.md)）
+-   Multi page convert GUI（[README](https://github.com/delta1037/notion-dump-local/blob/main/README_multi.md)）
+
+
+
+*If you want put this tool on you server (for regular backup), you could choose \*\_server\_\*.py version.*
+
+## Files
+
+backup == convert
+
+- api/backup_info.py: operate backup list page (the page is the config of backup what and where to backup). It will check backup status and add backup  log automately
+- api/notion_dump_api.py: relocate link in the page of *notion-dump-kernel* downloaded, regroup the file downloaded.
+- notion_dump_server_single.py: the server script to backup single page（use cron command to do regular backup ）
+- notion_dump_client_single.py: a GUI client to backup single page (it is very simple, all settings are configured in config file)
+- notion_dump_server_multi.py: the server script to backup multi page（use cron command to do regular backup ）
+- notion_dump_client_multi.py: a GUI client to backup multi page (it is very simple, all settings are configured in config file)
 

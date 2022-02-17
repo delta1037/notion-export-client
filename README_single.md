@@ -1,18 +1,18 @@
-# notion-dump-local
+# notion-dump-client-single
 
-基于notion-dump-kernel的一个实例（在下载页面并解析的基础上对下载页面内的链接进行重定位），用于递归导出notion页面（页面内几乎所有内容详细见测试页面）为Markdown&CSV格式
+**notion-dump-client-single** is a tool base on [notion-dump-kernel](https://github.com/delta1037/notion-dump-kernel) (regroup the file downloaded and relocate link in pages or database), it can recursionly convert all subpages (about convert block you can see test page) to markdown/CSV format (database parser type can be choosed convert to CSV).
 
-## 一、描述
+## 1. Function
 
-- [ ] 对递归下载的notion指定页面将其中的链接重定位，形成一种内置的文件结构（见输出描述）
+- [ ] Backup **single-page** to path configured in file named `config.json`
 
-## 二、使用
+## 2、Usage
 
-## 2.1 客户端版本使用
+## 2.1 GUI usage
 
-<font color=red>**使用前仔细看配置文件和如下配置说明**</font>
+<font color=red>**Before you launch the app, you should know the meaning of the config.**</font>
 
-**填写配置**：本实例使用配置文件和一个图形客户端（显示dump日志）组成，其中配置文件说明如下：
+**Fill the config**：config file name is `config.json`,  which content such as:
 
 ```json
 {
@@ -26,29 +26,27 @@
 }
 ```
 
--   token：notion官方API token
--   page_id：需要备份的notion页面（注意token需要在该页面有权限）
--   page_type：目前只支持page类型（另一种是database，不过解析出来很诡异，调了三天bug了不想调了）
--   export_child_page：是否导出子页面（true/false）
+-   token：the page that you want to backup must invite this token
+-   page_id：the id of the page that you want to backup
+-   page_type：support page/database
+-   export_child_page：backup sub-page or nested page（true/false）
 
-- dump_path：导出路径位置（基于当前程序位置）
-- page_parser_type：页面解析类型（md/plain：md是markdown格式，plain是纯文本格式，page默认是markdown，填错时会选择默认值并且不提示）
-- db_parser_type：数据库解析类型（md/plain：md是markdown格式，plain是纯文本格式，database默认是plain，填错时会选择默认值并且不提示）
+- dump_path：the path that you want  to backup
+- page_parser_type：page parser type（md/plain：md is markdown，plain only text without format，default is markdown, it will not warn when you use a wrong value）
+- db_parser_type：database parser type（md/plain：md is markdown table，plain is csv，default is plain, it will not warn when you use a wrong value）
 
 **运行客户端**：
 
-![客户端界面](https://github.com/delta1037/notion-dump-local/blob/main/img/client-img.jpg)
+![GUI](https://github.com/delta1037/notion-dump-local/blob/main/img/client-img.jpg)
 
-在**填好配置之后**，点击开始按钮即可开始备份，出现错误时先点击测试按钮看是否成功，如果成功可以在此项目中提交issue，并向Email：geniusrabbit@qq.com发送客户端目录下的`dump.log`，**注意删除其中的token部分**
+After you fill the `config.json`, you can click start button to statup backup. If you find any log in `dump.log` start with `[ISSUE]`, you can issue in github repo or email the `dump.log` to geniusrabbit@qq.com (**you should check the log file not contain your token !!!**)
 
+### 2.2 API usage
 
-
-### 2.2 接口版本使用
-
-接口版本封装了如下三个接口，其中参数自解释（或者看客户端参数配置和[notion-dump-kernel](https://github.com/delta1037/notion-dump-kernel)的参数说明）
+Here are three way to call the api and the args explain itself (or you can reference [notion-dump-kernel](https://github.com/delta1037/notion-dump-kernel)) 
 
 ```python 
-# 1、初始化赋值
+# 1. init pass args
 def __init__(
             self,
             token=None,
@@ -61,7 +59,7 @@ def __init__(
     )
    
    
-# 2、重新赋值
+# 2. re-pass args
 def reset_param(
             self,
             token=None,
@@ -74,7 +72,7 @@ def reset_param(
     )
 
 
-# 3、开始导出，或者导出前赋值
+# 3. p
 def start_dump(
             self,
             token=None,
@@ -87,13 +85,14 @@ def start_dump(
     )
 ```
 
-## 三、输出
+## 3. Output
 
-下载主目录由用户决定，主目录下结构为
+the file structure in the path of backup: 
+
 ```powershell
-- child_pages/  # 所有的子页面（包括数据库中的子页面）
-- databases/    # 所有导出的数据库（包含csv和一个markdown格式的数据库页面辅助定位文件）
-- files/        # 所有的图片和文件
-main.md         # 下载页面id（作为主页存在）
+- child_pages/  # all child page, include database page
+- databases/    # all database file(markdown table or csv file, depend on your configuration), which used to link in page
+- files/        # all file (pdf...) and image
+main.md         # the main page to backup 
 ```
 
