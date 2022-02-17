@@ -496,7 +496,7 @@ class NotionDumpApi:
 
             # 获取主页的系统路径（根据导出位置计算） # 拷贝dump的文件到导出位置
             root_os_path = self.__get_root_info(page_info=page_info, page_id=page_id)
-            if not os.path.exists(root_os_path):
+            if not os.path.exists(root_os_path) and os.path.exists(page_info["local_path"]):
                 self.show_log("% __relocate_child_page <root> copy " + page_info["local_path"] + " to " + root_os_path,
                               level=LOG_INFO)
                 shutil.copyfile(page_info["local_path"], root_os_path)
@@ -530,7 +530,7 @@ class NotionDumpApi:
                         root_type=page_info["type"]
                     )
 
-                if child_os_path != "" and child_dump_path != "":
+                if child_os_path != "" and child_dump_path != "" and os.path.exists(child_dump_path):
                     self.show_log("% __relocate_child_page copy " + child_dump_path + " to " + child_os_path,
                                   level=LOG_INFO)
                     shutil.copyfile(child_dump_path, child_os_path)
