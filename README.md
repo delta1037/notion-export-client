@@ -1,8 +1,8 @@
-# notion-dump-local
+# notion-export-client
 
 [中文版](https://github.com/delta1037/notion-dump-local/blob/main/README_zh.md)
 
-Backup tool base on [notion-dump-kernel](https://github.com/delta1037/notion-dump-kernel). It use official API and integration token. 
+Backup tool base on [notion-export-kernel](https://github.com/delta1037/notion-export-kernel). It use official API and integration token. 
 
 **You should know the backup file cant restore to notion. Its completely local. **
 
@@ -10,7 +10,7 @@ Backup tool base on [notion-dump-kernel](https://github.com/delta1037/notion-dum
 
 Functions：
 
--   convert notion page or database to markdown file（you can choose csv type for database）
+-   convert notion page or database to markdown file（you can choose CSV type for database）
 -   relocate link(sub-pages, image, files) in markdown file (relocate to local url)
 
 ## Version
