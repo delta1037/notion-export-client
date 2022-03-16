@@ -19,6 +19,13 @@ class NotionBackupGUI:
     def __init__(self, init_window):
         # GUI
         self.init_window = init_window
+
+        # 输出重定向
+        self.stdout_bak = sys.stdout
+        self.stderr_bak = sys.stderr
+        sys.stdout = self
+        sys.stderr = self
+
         # 日志
         self.log_text = None
         self.log_label = None
@@ -27,16 +34,9 @@ class NotionBackupGUI:
 
         # 配置获取
         self.config = None
-        self.__read_config()
 
         # dump api
         self.dump_api = None
-
-        # 输出重定向
-        self.stdout_bak = sys.stdout
-        self.stderr_bak = sys.stderr
-        sys.stdout = self
-        sys.stderr = self
 
     def restore_std(self):
         sys.stdout = self.stdout_bak
@@ -62,9 +62,9 @@ class NotionBackupGUI:
             with open(CONFIG_FILE_NAME, encoding="utf-8") as conf_file_handle:
                 self.config = json.load(conf_file_handle)
         except FileNotFoundError:
-            print("Configuration file does not exist")
+            self.write("\nConfiguration file does not exist\n")
         except JSONDecodeError:
-            print("Configuration file is corrupted")
+            self.write("\nConfiguration file is corrupted\n")
 
     def get_key(self, key):
         return self.config.get(key)
@@ -88,6 +88,9 @@ class NotionBackupGUI:
     def start_button_process(self):
         self.start_button["state"] = "disabled"
         self.log_text.delete('1.0', 'end')
+        # 读取配置
+        self.__read_config()
+
         # 从配置获取输入值
         if not self.check_config():
             print("Config init failed, file:" + CONFIG_FILE_NAME)
