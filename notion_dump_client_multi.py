@@ -61,10 +61,12 @@ class NotionBackupGUI:
         try:
             with open(CONFIG_FILE_NAME, encoding="utf-8") as conf_file_handle:
                 self.config = json.load(conf_file_handle)
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             self.write("\nConfiguration file does not exist\n")
-        except JSONDecodeError:
+            self.write(e)
+        except JSONDecodeError as e:
             self.write("\nConfiguration file is corrupted\n")
+            self.write(e)
 
     def get_key(self, key):
         return self.config.get(key)
