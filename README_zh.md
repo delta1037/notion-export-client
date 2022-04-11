@@ -1,6 +1,14 @@
-# notion-dump-local
+# notion--export--client
 
-基于[notion-dump-kernel](https://github.com/delta1037/notion-dump-kernel)的实例
+基于[notion-export-kernel](https://github.com/delta1037/notion-dump-kernel)的实例
+
+```bash
+pip isntall notion-dump-kernel
+# NOT notion-export-kernel
+```
+
+-   **备份的内容不能恢复到Notion中**
+-   **使用时需要保证notion-dump-kernel是最新版本的并且定时检查更新**
 
 功能：
 

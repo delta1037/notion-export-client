@@ -4,7 +4,14 @@
 
 Backup tool base on [notion-export-kernel](https://github.com/delta1037/notion-export-kernel). It use official API and integration token. 
 
-**You should know the backup file cant restore to notion. Its completely local. **
+```bash
+pip isntall notion-dump-kernel
+# NOT notion-export-kernel
+```
+
+-   **You should know the backup file cant restore to notion. Its completely local. **
+
+-   **You should update notion-dump-kernel to the latest version and check for updates regularly**
 
 
 
