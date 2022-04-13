@@ -13,7 +13,7 @@ from NotionDump.Dump.dump import Dump
 from NotionDump.Notion.Notion import NotionQuery
 from NotionDump.utils import common_op
 
-VERSION = "0.3"
+VERSION = "0.1.10"
 # 配置位置
 CONFIG_FILE_NAME = "../config.json"
 # 子目录的定制
@@ -161,7 +161,7 @@ class NotionDumpApi:
         return self.__start_export()
 
     def show_param(self):
-        self.show_log("version:" + VERSION, level=LOG_INFO)
+        self.show_log("kernel version:" + VERSION, level=LOG_INFO)
         self.show_log("  token:" + self.__token)
         self.show_log("page_id:" + self.__page_id, level=LOG_INFO)
         type_str = "unknown"
@@ -321,7 +321,7 @@ class NotionDumpApi:
             self.show_log("> page id:" + child_id + " is link page, get true page")
             self.show_log("> link id:" + child_info["link_id"])
             # 向真正的页面传递
-            l_name, l_link, l_dump_path, l_os_path = \
+            l_name, l_link, l_dump_path, l_os_path, copy_flag = \
                 self.__get_child_info(
                     pages_handle=pages_handle,
                     child_info=pages_handle[child_info["link_id"]],
@@ -331,7 +331,7 @@ class NotionDumpApi:
                 )
             if child_name == "":
                 child_name = l_name
-            return child_name, l_link, l_dump_path, l_os_path
+            return child_name, l_link, l_dump_path, l_os_path, copy_flag
 
         if child_name == "":
             # 如果没名字，用ID做名字
@@ -392,9 +392,11 @@ class NotionDumpApi:
             else:
                 self.show_log("> there may be a error type" + child_info["type"], level=LOG_INFO)
         # 判断系统路径合法性
+        copy_flag = True
         if page_os_path != "" and os.path.exists(page_os_path):
             self.show_log("> page " + page_os_path + " exist in local, dont need copy", level=LOG_INFO)
-            page_os_path = ""
+            # page_os_path = ""
+            copy_flag = False
 
         self.show_log("> [END] __get_child_info page id " + child_id)
         self.show_log("> [END] __get_child_info child_name :" + child_name)
@@ -407,7 +409,7 @@ class NotionDumpApi:
         page_os_path = os.path.normpath(page_os_path).replace('\\', '/')
         if page_os_path == ".":
             page_os_path = ""
-        return child_name, child_link, child_info["local_path"], page_os_path
+        return child_name, child_link, child_info["local_path"], page_os_path, copy_flag
 
     # 获取主页信息（导出的系统路径）
     def __get_root_info(self, page_info, page_id):
@@ -516,7 +518,7 @@ class NotionDumpApi:
                     pages_handle[child_id]["main_page"] = True
 
                 # 计算子页面名称和链接
-                child_name, child_link, child_dump_path, child_os_path = \
+                child_name, child_link, child_dump_path, child_os_path, copy_flag = \
                     self.__get_child_info(
                         pages_handle=pages_handle,
                         child_info=pages_handle[child_id],
@@ -525,7 +527,7 @@ class NotionDumpApi:
                         root_type=page_info["type"]
                     )
 
-                if child_os_path != "" and child_dump_path != "" and os.path.exists(child_dump_path):
+                if child_os_path != "" and copy_flag and child_dump_path != "" and os.path.exists(child_dump_path):
                     self.show_log("% __relocate_child_page copy " + child_dump_path + " to " + child_os_path,
                                   level=LOG_INFO)
                     shutil.copyfile(child_dump_path, child_os_path)
@@ -547,6 +549,10 @@ class NotionDumpApi:
                               level=LOG_INFO)
                 self.__relocate_link(root_os_path, src_link, des_link)
 
+                # # 测试
+                # if page_id == '7aa4cf88047642208064adc76290a285':
+                #     print("#### ", self.__db_parser_type, child_id, pages_handle[child_id]["type"], child_os_path, common_op.is_link_page(child_id, pages_handle[child_id]))
+                #     print("#### child_os_path:", child_os_path)
                 # 记录需要重定位的数据库(要求：md格式，数据库，已下载，非链接类型，)
                 if self.__db_parser_type == NotionDump.PARSER_TYPE_MD \
                         and pages_handle[child_id]["type"] == "database" \
@@ -559,6 +565,8 @@ class NotionDumpApi:
                     self.__db_relocate_dic[child_os_path]["parent_os_path"].append(root_os_path)
                     self.__db_relocate_dic[child_os_path]["parent_key_id"] = des_link
                     self.__db_relocate_dic[child_os_path]["database_name"] = child_name
+                    # if page_id == '7aa4cf88047642208064adc76290a285':
+                    #     print(self.__db_relocate_dic)
 
                 # 写入数据库辅助定位信息
                 if root_md is not None and child_dump_path != "":
@@ -584,6 +592,7 @@ class NotionDumpApi:
                 md_key = self.__db_relocate_dic[db_os_path]["parent_key_id"]
 
                 # 将数据库内容插入到原来的位置,替换成标题加表格的形式
+                self.show_log("% __relocate_link file " + md_file + ", key= " + md_key, level=LOG_INFO)
                 self.__relocate_link(md_file, md_key, db_all_line, show_log=False)
 
             # 删除新增的数据库表格
