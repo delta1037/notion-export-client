@@ -14,8 +14,6 @@ from NotionDump.Notion.Notion import NotionQuery
 from NotionDump.utils import common_op
 
 VERSION = "0.1.10"
-# 配置位置
-CONFIG_FILE_NAME = "../config.json"
 # 子目录的定制
 CHILD_PAGES_PATH = "./child_pages/"
 DATABASE_PATH = "./databases/"
@@ -215,12 +213,12 @@ class NotionDumpApi:
             # 将解析内容存储到文件中；返回内容存储为json文件
             self.show_log("start dump to file ..., it may take a long time if you page is too many", level=LOG_INFO)
             page_detail_json = page_handle.dump_to_file()
-            json_name = ".tmp/page_parser_result.json"
+            json_name = NotionDump.TMP_DIR + "/page_parser_result.json"
             common_op.save_json_to_file(handle=page_detail_json, json_name=json_name)
             self.show_log("page dump success, file info save at " + json_name, level=LOG_INFO)
         else:
             # 从本地加载文件
-            json_name = ".tmp/page_parser_result.json"
+            json_name = NotionDump.TMP_DIR + "/page_parser_result.json"
             with open(json_name, "r", encoding="utf-8") as f:
                 page_detail_json = json.load(f)
 

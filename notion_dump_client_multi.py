@@ -13,7 +13,7 @@ from api.notion_dump_api import NotionDumpApi, DB_INSERT_TYPE_PAGE, DB_INSERT_TY
 from api.backup_info import BackupInfo
 
 CONFIG_FILE_NAME = "./config_multi.json"
-VERSION = "1.0"
+VERSION = "1.0(m)"
 
 
 class NotionBackupGUI:

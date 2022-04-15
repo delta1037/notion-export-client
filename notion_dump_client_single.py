@@ -12,7 +12,7 @@ import NotionDump
 from api.notion_dump_api import NotionDumpApi, DB_INSERT_TYPE_PAGE, DB_INSERT_TYPE_LINK
 
 CONFIG_FILE_NAME = "./config.json"
-VERSION = "1.0"
+VERSION = "1.0(s)"
 
 
 class NotionBackupGUI:
