@@ -9,10 +9,10 @@ from tkinter import *
 from json import JSONDecodeError
 
 import NotionDump
-from api.notion_dump_api import NotionDumpApi
+from api.notion_dump_api import NotionDumpApi, DB_INSERT_TYPE_PAGE, DB_INSERT_TYPE_LINK
 
 CONFIG_FILE_NAME = "./config.json"
-VERSION = "0.13"
+VERSION = "1.0"
 
 
 class NotionBackupGUI:
@@ -94,6 +94,7 @@ class NotionBackupGUI:
             # 恢复按钮状态
             self.start_button["state"] = "normal"
             return
+        self.write("client version: " + VERSION)
         _token = self.get_key("token")
         _page_id = self.get_key("page_id")
         _dump_type_str = self.get_key("page_type")
@@ -120,6 +121,10 @@ class NotionBackupGUI:
         if self.get_key("db_parser_type") == "md":
             _db_parser_type = NotionDump.PARSER_TYPE_MD
 
+        _db_insert_type = DB_INSERT_TYPE_PAGE
+        if self.get_key("db_insert_type") is not None and self.get_key("db_insert_type") == "link":
+            _db_insert_type = DB_INSERT_TYPE_LINK
+
         # 初始化 API
         dump_api = NotionDumpApi(
             token=_token,
@@ -128,7 +133,8 @@ class NotionBackupGUI:
             dump_type=_dump_type,
             export_child=_export_child,
             page_parser_type=_page_parser_type,
-            db_parser_type=_db_parser_type
+            db_parser_type=_db_parser_type,
+            db_insert_type=_db_insert_type,
         )
 
         # 开始导出

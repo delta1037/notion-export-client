@@ -20,6 +20,9 @@ CONFIG_FILE_NAME = "../config.json"
 CHILD_PAGES_PATH = "./child_pages/"
 DATABASE_PATH = "./databases/"
 FILES_PATH = "./files/"
+DB_INSERT_TYPE_LINK = 0
+DB_INSERT_TYPE_PAGE = 1
+
 
 # 日志等级
 LOG_DEBUG = 1
@@ -38,7 +41,8 @@ class NotionDumpApi:
             dump_type=NotionDump.DUMP_TYPE_PAGE,
             export_child=False,
             page_parser_type=NotionDump.PARSER_TYPE_MD,
-            db_parser_type=NotionDump.PARSER_TYPE_PLAIN
+            db_parser_type=NotionDump.PARSER_TYPE_PLAIN,
+            db_insert_type=DB_INSERT_TYPE_PAGE
     ):
 
         self.__token = token
@@ -50,6 +54,8 @@ class NotionDumpApi:
 
         self.__page_parser_type = page_parser_type
         self.__db_parser_type = db_parser_type
+
+        self.__db_insert_type = db_insert_type
 
         self.__query_handle = self.__init_query_handle()
 
@@ -76,6 +82,7 @@ class NotionDumpApi:
     # 开始之前校验变量
     def __check_variable(self):
         if self.__query_handle is None:
+            self.show_log("query handle is null", level=LOG_INFO)
             return False
         if self.__page_id is None or self.__page_id == "":
             self.show_log("page_id is null", level=LOG_INFO)
@@ -96,6 +103,9 @@ class NotionDumpApi:
         if self.__db_parser_type != NotionDump.PARSER_TYPE_MD and self.__db_parser_type != NotionDump.PARSER_TYPE_PLAIN:
             self.show_log("db_parser_type error", level=LOG_INFO)
             return False
+        if self.__db_insert_type != DB_INSERT_TYPE_LINK and self.__db_insert_type != DB_INSERT_TYPE_PAGE:
+            self.show_log("db_insert_type error", level=LOG_INFO)
+            return False
         return True
 
     # 重设变量
@@ -107,7 +117,8 @@ class NotionDumpApi:
             dump_type=None,
             export_child=None,
             page_parser_type=None,
-            db_parser_type=None
+            db_parser_type=None,
+            db_insert_type=None
     ):
         if token is not None:
             if self.__token is None or self.__token != token:
@@ -126,6 +137,8 @@ class NotionDumpApi:
             self.__page_parser_type = page_parser_type
         if db_parser_type is not None:
             self.__db_parser_type = db_parser_type
+        if db_insert_type is not None:
+            self.__db_insert_type = db_insert_type
 
     def start_dump(
             self,
@@ -135,7 +148,8 @@ class NotionDumpApi:
             dump_type=None,
             export_child=None,
             page_parser_type=None,
-            db_parser_type=None
+            db_parser_type=None,
+            db_insert_type=None
     ):
         self.reset_param(
             token=token,
@@ -145,6 +159,7 @@ class NotionDumpApi:
             export_child=export_child,
             page_parser_type=page_parser_type,
             db_parser_type=db_parser_type,
+            db_insert_type=db_insert_type
         )
         # 导出前先显示参数
         self.show_param()
@@ -177,11 +192,15 @@ class NotionDumpApi:
         page_parser_s = "md"
         if self.__page_parser_type == NotionDump.PARSER_TYPE_PLAIN:
             page_parser_s = "plain"
+        self.show_log("page_parser:" + page_parser_s, level=LOG_INFO)
         db_parser_s = "plain"
         if self.__db_parser_type == NotionDump.PARSER_TYPE_MD:
             db_parser_s = "md"
-        self.show_log("page_parser:" + page_parser_s, level=LOG_INFO)
         self.show_log("  db_parser:" + db_parser_s, level=LOG_INFO)
+        db_insert_s = "content"
+        if self.__db_insert_type == DB_INSERT_TYPE_LINK:
+            db_insert_s = "link"
+        self.show_log("  db_insert:" + db_insert_s, level=LOG_INFO)
 
     def __start_export(self):
         if not LOCAL_FILE_TEST:
@@ -226,9 +245,12 @@ class NotionDumpApi:
             page_detail_json[p_id]["page_recursion"] = False
         self.show_log("start relocate link in file...", level=LOG_INFO)
         self.__relocate_child_page(page_detail_json, main_page_list, is_main=True)
-        self.show_log("file link relocate success, check path :" + self.__dump_path, level=LOG_INFO)
-        if self.__db_parser_type == NotionDump.PARSER_TYPE_MD:
+
+        # 在数据库需要显示为内容的时候把链接转换为内容
+        if self.__db_parser_type == NotionDump.PARSER_TYPE_MD and self.__db_insert_type == DB_INSERT_TYPE_PAGE:
+            self.show_log("convert db link to content...", level=LOG_INFO)
             self.__relocate_db()
+        self.show_log("file link relocate success, check path :" + self.__dump_path, level=LOG_INFO)
         return True
 
     # 创建文件目录

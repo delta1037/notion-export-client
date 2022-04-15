@@ -9,11 +9,11 @@ from tkinter import *
 from json import JSONDecodeError
 
 import NotionDump
-from api.notion_dump_api import NotionDumpApi
+from api.notion_dump_api import NotionDumpApi, DB_INSERT_TYPE_PAGE, DB_INSERT_TYPE_LINK
 from api.backup_info import BackupInfo
 
 CONFIG_FILE_NAME = "./config_multi.json"
-VERSION = "0.9"
+VERSION = "1.0"
 
 
 class NotionBackupGUI:
@@ -93,6 +93,7 @@ class NotionBackupGUI:
         self.log_text.delete('1.0', 'end')
         # 读取配置
         self.__read_config()
+        self.write("client version: " + VERSION)
 
         # 从配置获取输入值
         if not self.check_config():
@@ -171,6 +172,12 @@ class NotionBackupGUI:
             if backup[backup_list_map["db_parser_type"]] == "Markdown":
                 _db_parser_type = NotionDump.PARSER_TYPE_MD
 
+            _db_insert_type = DB_INSERT_TYPE_PAGE
+            if "db_insert_type" in backup_list_map \
+                    and backup_list_map["db_insert_type"] in backup \
+                    and backup[backup_list_map["db_insert_type"]] == "Link":
+                _db_insert_type = DB_INSERT_TYPE_LINK
+
             # 启动导出
             ret_status = dump_api.start_dump(
                 token=dump_token,
@@ -179,7 +186,9 @@ class NotionBackupGUI:
                 dump_type=_dump_type,
                 export_child=_export_child,
                 page_parser_type=_page_parser_type,
-                db_parser_type=_db_parser_type)
+                db_parser_type=_db_parser_type,
+                db_insert_type=_db_insert_type,
+            )
             if dump_log != "":
                 dump_log += "\n"
             if ret_status:
