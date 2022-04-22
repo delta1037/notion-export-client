@@ -13,7 +13,7 @@ from api.notion_dump_api import NotionDumpApi, DB_INSERT_TYPE_PAGE, DB_INSERT_TY
 from api.backup_info import BackupInfo
 
 CONFIG_FILE_NAME = "./config_multi.json"
-VERSION = "1.0(m)"
+VERSION = "1.1(m)"
 
 
 class NotionBackupGUI:
@@ -93,7 +93,7 @@ class NotionBackupGUI:
         self.log_text.delete('1.0', 'end')
         # 读取配置
         self.__read_config()
-        self.write("client version: " + VERSION)
+        self.write("client version: " + VERSION + "\n")
 
         # 从配置获取输入值
         if not self.check_config():

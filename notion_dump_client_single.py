@@ -12,7 +12,7 @@ import NotionDump
 from api.notion_dump_api import NotionDumpApi, DB_INSERT_TYPE_PAGE, DB_INSERT_TYPE_LINK
 
 CONFIG_FILE_NAME = "./config.json"
-VERSION = "1.0(s)"
+VERSION = "1.1(s)"
 
 
 class NotionBackupGUI:
@@ -94,7 +94,7 @@ class NotionBackupGUI:
             # 恢复按钮状态
             self.start_button["state"] = "normal"
             return
-        self.write("client version: " + VERSION)
+        self.write("client version: " + VERSION + "\n")
         _token = self.get_key("token")
         _page_id = self.get_key("page_id")
         _dump_type_str = self.get_key("page_type")

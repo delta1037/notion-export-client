@@ -13,7 +13,7 @@ from NotionDump.Dump.dump import Dump
 from NotionDump.Notion.Notion import NotionQuery
 from NotionDump.utils import common_op
 
-VERSION = "0.1.10"
+VERSION = "0.1.11"
 # 子目录的定制
 CHILD_PAGES_PATH = "./child_pages/"
 DATABASE_PATH = "./databases/"

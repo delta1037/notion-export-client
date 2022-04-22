@@ -15,7 +15,7 @@ SEVER_ABS_PATH = os.path.dirname(sys.argv[0])
 CONFIG_FILE_NAME = SEVER_ABS_PATH + "/config_multi.json"
 LOG_FILE = SEVER_ABS_PATH + "/dump.log"
 NotionDump.TMP_DIR = SEVER_ABS_PATH + NotionDump.TMP_DIR
-VERSION = "1.0(m)"
+VERSION = "1.1(m)"
 
 
 class NotionBackup:
