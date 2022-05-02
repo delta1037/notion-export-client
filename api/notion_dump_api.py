@@ -5,7 +5,6 @@
 import copy
 import os
 import shutil
-import time
 import json
 
 import NotionDump
@@ -40,7 +39,8 @@ class NotionDumpApi:
             export_child=False,
             page_parser_type=NotionDump.PARSER_TYPE_MD,
             db_parser_type=NotionDump.PARSER_TYPE_PLAIN,
-            db_insert_type=DB_INSERT_TYPE_PAGE
+            db_insert_type=DB_INSERT_TYPE_PAGE,
+            debug=False
     ):
 
         self.__token = token
@@ -60,12 +60,14 @@ class NotionDumpApi:
         # 记录数据库插入到嵌入改数据库md文件的位置
         self.__db_relocate_dic = {}  # db_relocate_item 组成的list
 
-    @staticmethod
-    def show_log(debug_str, level=LOG_DEBUG):
-        current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        log_msg_in = str(current_time) + " " + str(debug_str)
-        if level == LOG_INFO:
-            print(log_msg_in)
+        # debug
+        self.debug = debug
+
+    def show_log(self, debug_str, level=LOG_DEBUG):
+        if not self.debug and level == LOG_INFO:
+            print(debug_str)
+        elif self.debug:
+            print(debug_str)
 
     def __init_query_handle(self):
         if self.__token is None:

@@ -1,3 +1,7 @@
+# author: delta1037
+# Date: 2022/02/10
+# mail:geniusrabbit@qq.com
+
 import time
 import datetime
 
