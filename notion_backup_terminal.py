@@ -19,7 +19,7 @@ class Logger(object):
         # 输出备份的时间
         backup_time = time.strftime('backup_time: %Y-%m-%d %H:%M:%S\n', time.localtime(time.time()))
         self.terminal.write(backup_time)
-        self.log.write("###################################################\n")
+        self.log.write("\n###################################################\n")
         self.log.write(backup_time)
         self.log.flush()
 

@@ -2,6 +2,8 @@
 
 [English](https://github.com/delta1037/notion-dump-local/blob/main/README_en.md)
 
+## 一、概要
+
 基于[notion-export-kernel](https://github.com/delta1037/notion-dump-kernel)的一个备份工具
 
 ```bash
@@ -23,7 +25,7 @@ pip isntall notion-dump-kernel
 -   **备份的内容不能恢复到Notion中**
 -   **使用时需要保证notion-dump-kernel是最新版本的并且定时检查更新**
 
-## 配置
+## 二、配置
 
 <font color=red>**使用前仔细看配置文件和如下配置说明**</font>
 
@@ -76,7 +78,7 @@ pip isntall notion-dump-kernel
 >
 >   2、大部分时候主页里的一些页面不会继续更新也就不需要重新备份，所以可以对主页里面的页面进行拆分，单独进行备份
 
-### 解释
+### 2.1 解释
 
 -   backup_type：选择备份类型（**单页面或者多页面，接下来只配置多页面或者单页面的部分就可以，不需要全都填写**）
 -   auto_close： 备份完成后自动关闭（在配置定时任务时，如果不需要查看终端的结果，就让它自动关了吧；该配置在图形界面无效）
@@ -100,17 +102,20 @@ pip isntall notion-dump-kernel
 -   backup_list_map：导出页面参数数据库字段映射表（如果是直接duplicate的多页面备份模板，未修改数据库字段则不需要修改）
 -   backup_log_map：备份日志数据库字段映射表（如果是直接duplicate的多页面备份模板，未修改数据库字段则不需要修改）
 
-### 多页面**需要**配置参数数据库
+### 2.2 多页面**需要**配置参数数据库
 
 对于多页面的备份，备份参数的来源是notion中的一个Database，示例和模板如下（选中文版本）：
 
-![database sample](H:\GitHubRepo\notion-dump-local\README_zh\database_args.png)
+![database sample](https://github.com/delta1037/notion-export-client/tree/main/img/database_args.png)
 
 [数据库模板](https://delta1037.notion.site/dump-a0a1fb8c871b4672b5b20437d8a078ec)
 
-**注意：**如果修改数据库中的字段（列）名，配置中的`backup_list_map`或者`backup_log_map`这两个字段（列）映射表需要随之修改；可随意新增字段/列（不与现有的字段（列）名冲突即可）
+**注意：**
 
-### 注意事项
+-   修改数据库中的字段（列）名，配置中的`backup_list_map`或者`backup_log_map`这两个字段（列）映射表需要同步修改
+-   可随意新增字段/列（不与现有的字段（列）名冲突即可）
+
+### 2.3 注意事项
 
 1、这两类（多页面和单页面备份）都需要填写好配置 （毕竟除了你谁也不知道你想备份什么）
 
@@ -118,7 +123,7 @@ pip isntall notion-dump-kernel
 
 3、单页面备份和多页面备份在重新运行时，都会覆盖同一个备份目录（即如果需要对备份到本地的文件改动，请异动到别的位置，或者修改备份的位置）
 
-### 视频参考
+### 2.4 视频参考
 
 注意上述的配置是将单页面和多页面综合起来的（之前是分离的），但是配置过程基本不变（除了token的名称有变化而言）
 
@@ -130,13 +135,13 @@ pip isntall notion-dump-kernel
 
 [Window定时备份](https://www.bilibili.com/video/BV19u411C7cQ/)
 
-## 运行
+## 三、运行
 
 使用pyinstaller打包一个点击即运行的exe（或者其它平台）；或者直接在终端里运行脚本（`py notion_backup_terminal.py`）
 
 如果你在`dump.log`中发现以`[ISSUE]`开头的日志，可以在[此项目](https://github.com/delta1037/notion-export-client)中提交issue，并向Email：geniusrabbit@qq.com发送客户端目录下的`dump.log`，**注意删除其中的token部分**
 
-## 输出说明
+## 四、输出说明
 
 备份位置下的结构为：
 
@@ -149,7 +154,7 @@ main.md         # 下载页面id（作为主页存在）
 
 该目录可以直接用`Typora`打开，或者用`Obsidian`打开。
 
-## 项目结构
+## 五、项目结构
 
 - api/backup_info.py: 备份页面清单管理（修改清单备份状态，自动新增备份历史记录）
 - api/notion_dump_api.py: 对`notion-dump-kernel`下载的文件重新组合位置并对文件中的链接（子页面、图片、文件）之类的重新定位
@@ -157,9 +162,7 @@ main.md         # 下载页面id（作为主页存在）
 - notion_backup_terminal.py：命令行黑窗版本
 - notion_backup_gui.py：一个极其简单的图形界面版本（点击开始即可运行）
 
-
-
-## 可参考的链接
+## 六、可参考的链接
 
 -   [备份工具版本说明](https://www.notion.so/delta1037/Notion-921e6b4ea44046c6935bcb2c69453196)
 -   [备份工具测试页面](https://www.notion.so/delta1037/Notion-dump-ed0a3b0f57b34712bc6bafcbdb413d50)

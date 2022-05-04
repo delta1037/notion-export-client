@@ -34,7 +34,7 @@ class NotionBackupGUI:
         self.log = open(LOG_FILE, "a+", encoding='utf-8')
         # 输出备份的时间
         backup_time = time.strftime('backup_time: %Y-%m-%d %H:%M:%S\n', time.localtime(time.time()))
-        self.log.write("###################################################\n")
+        self.log.write("\n###################################################\n")
         self.log.write(backup_time)
         self.log.flush()
 
