@@ -14,7 +14,7 @@ from api.backup_info import BackupInfo
 SEVER_ABS_PATH = os.path.dirname(sys.argv[0])
 CONFIG_FILE_NAME = SEVER_ABS_PATH + "/config.json"
 NotionDump.TMP_DIR = SEVER_ABS_PATH + NotionDump.TMP_DIR
-VERSION = "1.2"
+VERSION = "1.4"
 
 
 class NotionBackup:
