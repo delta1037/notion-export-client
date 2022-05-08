@@ -9,11 +9,11 @@
 
 - **备份的内容不能恢复到Notion中**
 - 数据库某些高级字段不支持（可以但是没必要）
-- 离线目录可以自由编辑（typora打开目录；Obsidian也可以打开，但是表格里的某些富文本无法渲染）
+- 离线目录可以自由编辑（Typora可以打开目录；Obsidian也可以打开，但是表格里的某些富文本无法渲染）
 - 数据库备份为csv格式时，使用Excel打开会乱码，百度搜索“Excel utf8乱码”解决
 - 备份的内容中图片和文件的命名优先级：Caption > (文件名称：图片没有解析名称) > id
 
-**一些可参考链接：（教程：B站delta1037；源码：Github delta1037）**
+**一些可参考链接：（教程：B站delta1037；源码：Github delta1037；QQ交流群：917606741）**
 
 - [备份工具测试页面](https://www.notion.so/delta1037/Notion-dump-ed0a3b0f57b34712bc6bafcbdb413d50)
 - [单页面备份视频教程](https://www.bilibili.com/video/BV1zr4y1Y7kt/)
@@ -26,8 +26,6 @@
 ------
 
 [TOC]
-
-
 
 # 一、版本介绍
 
@@ -68,7 +66,7 @@
 
 **填写配置**：配置文件名称是`config.json`，配置文件样例和字段含义说明如下：
 
-```json
+```plain text
  {
      "backup_type": "multi",
      "auto_close": true,
@@ -107,7 +105,11 @@
  }
 ```
 
-> <span style="background-color:#EDF3EC"><font color="#337EA9">Q：同一个Notion账户为什么需要备份多个页面？</font></span>
+> <font color="#337EA9">**Q：同一个Notion账户为什么需要备份多个页面？**</font>
+> 
+> <font color="#9F6B53">A：
+> 1、该备份工具使用Notion官方API获取页面数据，官方API对调用速率有要求，所以一次备份的页面量最好不要太多（太多的话目前也没遇到问题），可以对页面拆分备份，一次只备份其中有更新的一部分
+> 2、大部分时候主页里的一些页面不会继续更新也就不需要重新备份，所以可以对主页里面的页面进行拆分，单独进行备份</font>
 
 ### 2.2.1 字段解释
 
@@ -145,7 +147,7 @@
 
 ![多页面备份参数数据库](https://github.com/delta1037/notion-export-client/blob/main/img/database_args.png)
 
-<font color="#D44C47">[多页面备份参数数据库模板](../child_pages/d90024f0d93d4038af703930468c1276.md)</font>
+<font color="#D44C47">[多页面备份参数数据库模板](https://www.notion.so/delta1037/Notion-d90024f0d93d4038af703930468c1276)</font>
 
 **注意：**
 
@@ -167,13 +169,13 @@
 ## 2.3、运行
 
 - 你如果拿到的是一个exe可执行文件（QQ群917606741内的notion-backup文件夹），那么在配置完成之后点击即可开始运行了。
-- 你也下载源代码使用pyinstaller打包一个点击即运行的exe（或者其它平台）；或者直接在终端里运行脚本（`py notion_backup_terminal.py`）（见三、自行打包）
+- 你也下载源代码使用pyinstaller打包一个点击即运行的exe（或者其它平台）；或者直接在终端里运行脚本（`py notion_backup_terminal.py`）（见[三、自行打包]()）
 
-**备注：
+**备注：**
 
-**1、如果你在`dump.log`中发现以`[ISSUE]`开头的日志，可以在[此项目](https://github.com/delta1037/notion-export-client)中提交issue（或者向QQ群917606741告知），并向Email：geniusrabbit@qq.com发送客户端目录下的`dump.log`，**注意删除其中的token部分
+1、如果你在`dump.log`中发现以`[ISSUE]`开头的日志，可以在[此项目](https://github.com/delta1037/notion-export-client)中提交issue（或者向QQ群917606741告知），并向Email：[mailto:geniusrabbit@qq.com_geniusrabbit@qq.com]()发送客户端目录下的`dump.log`，**注意删除其中的token部分**
 
-**2、如果你发现备份下来的页面有内容丢失或者错误的问题，可以在[此项目](https://github.com/delta1037/notion-export-kernel)中提交issue（或者向QQ群917606741告知）
+2、如果你发现备份下来的页面有内容丢失或者错误的问题，可以在[此项目](https://github.com/delta1037/notion-export-kernel)中提交issue（或者向QQ群917606741告知）
 
 ## 2.4、输出说明
 
@@ -237,8 +239,10 @@ deactivate
 4、安装必要的包（<font color="#D44C47">环境激活的状态下</font>）
 
 ```powershell
-# 只有这一个依赖
+# notion页面解析模块
 pip install notion-dump-kernel
+# 打包模块
+pip install pyinstaller
 ```
 
 ## 3.3 打包
@@ -257,8 +261,6 @@ pip install notion-dump-kernel
 
 
 当运行完成之后，dist文件夹里就是点击即可运行的软件了~
-
-
 
 # 四、项目结构
 
