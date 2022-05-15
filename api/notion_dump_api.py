@@ -59,6 +59,7 @@ class NotionDumpApi:
 
         # 记录数据库插入到嵌入改数据库md文件的位置
         self.__db_relocate_dic = {}  # db_relocate_item 组成的list
+        self.main_page_path = ""  # 临时保存主页路径
 
         # debug
         self.debug = debug
@@ -250,6 +251,7 @@ class NotionDumpApi:
         if self.__db_parser_type == NotionDump.PARSER_TYPE_MD and self.__db_insert_type == DB_INSERT_TYPE_PAGE:
             self.show_log("convert db link to content...", level=LOG_INFO)
             self.__relocate_db()
+            self.after_export_process()
         self.show_log("file link relocate success, check path :" + self.__dump_path, level=LOG_INFO)
         return True
 
@@ -495,9 +497,9 @@ class NotionDumpApi:
             # page_info是一个实际子页面
             page_info = pages_handle[page_id]
 
-            # 主页面的数据库，与主页面同等看待
-            if "_main_page_db" in pages_handle[page_id].keys():
-                page_info["main_page"] = True
+            # # 主页面的数据库，与主页面同等看待 TODO
+            # if "_main_page_db" in pages_handle[page_id].keys():
+            #     page_info["main_page"] = True
 
             # 判断实际页面是否成功导出
             if not page_info["dumped"]:
@@ -519,9 +521,10 @@ class NotionDumpApi:
                 self.show_log("% __relocate_child_page <root> copy " + page_info["local_path"] + " to " + root_os_path,
                               level=LOG_INFO)
                 shutil.copyfile(page_info["local_path"], root_os_path)
-
             else:
                 self.show_log("file " + root_os_path + " is exist ???")
+            if page_info["main_page"]:
+                self.main_page_path = root_os_path
 
             # 对数据库类型生成同路径md辅助文件
             root_md = None
@@ -532,12 +535,12 @@ class NotionDumpApi:
 
             # 开始处理该页面下的所有链接，并将主页中的内容重定位
             # 获取到所有的子页面id 将主页中的子页面进行重定位，获取实际链接
-            for child_id in page_info["child_pages"]:
+            for child_id in page_info["child_pages"][::-1]:  # 改为逆序遍历
                 # 如果是子id是主页面包含的数据库，给子页面添加 额外的标志位
-                if self.__db_parser_type == NotionDump.PARSER_TYPE_MD \
-                        and is_main and pages_handle[child_id]["type"] == "database":
-                    pages_handle[child_id]["_main_page_db"] = "true"
-                    pages_handle[child_id]["main_page"] = True
+                # if self.__db_parser_type == NotionDump.PARSER_TYPE_MD \
+                #         and is_main and pages_handle[child_id]["type"] == "database":
+                #     pages_handle[child_id]["_main_page_db"] = "true"
+                #     pages_handle[child_id]["main_page"] = True
 
                 # 计算子页面名称和链接
                 child_name, child_link, child_dump_path, child_os_path, copy_flag = \
@@ -566,7 +569,10 @@ class NotionDumpApi:
                         # 新增一个辅助路径文件
                         des_link += "\n" + "[" + child_name + "](" + child_link[0:child_link.rfind(".")] + ".md" + ")"
                 else:
-                    des_link = child_name
+                    if pages_handle[child_id]["link_src"] != "":
+                        des_link = "[" + child_name + "](" + pages_handle[child_id]["link_src"] + ")"
+                    else:
+                        des_link = child_name
                 self.show_log("% __relocate_link file " + root_os_path + ", from " + src_link + " to " + des_link,
                               level=LOG_INFO)
                 self.__relocate_link(root_os_path, src_link, des_link)
@@ -620,3 +626,24 @@ class NotionDumpApi:
             # 删除新增的数据库表格
             # if "db_be_rel" not in self.__db_relocate_dic[db_os_path].keys():
             #     os.remove(db_os_path)
+
+    def after_export_process(self):
+        # 后期处理，主要是为了修正主页中的链接问题，和精简子目录中的链接
+
+        # 主页中的数据库中的链接部分需要重新定位
+        self.__relocate_link(self.main_page_path, "../child_pages/", "child_pages/", show_log=False)
+        self.__relocate_link(self.main_page_path, "../files/", "files/", show_log=False)
+
+        # 子页面中的对页面的链接需要精简 self.__dump_path + CHILD_PAGES_PATH
+        self.show_log("^ fix page files", level=LOG_INFO)
+        for file_name in os.listdir(self.__dump_path + CHILD_PAGES_PATH):
+            if file_name[file_name.rfind(".")+1:] == "md":
+                # print(file_name)
+                self.__relocate_link(self.__dump_path + CHILD_PAGES_PATH + file_name, "../child_pages/", "", show_log=False)
+        # 子数据库中的对数据库的链接需要精简 self.__dump_path + DATABASE_PATH
+        self.show_log("^ fix database files", level=LOG_INFO)
+        for file_name in os.listdir(self.__dump_path + DATABASE_PATH):
+            if file_name[file_name.rfind(".") + 1:] == "md":
+                # print(file_name)
+                self.__relocate_link(self.__dump_path + DATABASE_PATH + file_name, "../databases/", "",
+                                     show_log=False)
