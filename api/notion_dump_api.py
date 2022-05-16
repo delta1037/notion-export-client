@@ -571,7 +571,7 @@ class NotionDumpApi:
                 else:
                     if pages_handle[child_id]["link_src"] != "":
                         des_link = "[" + child_name + "](" + pages_handle[child_id]["link_src"] + ")"
-                    elif pages_handle[child_id]["dumped"] is False:
+                    elif pages_handle[child_id]["dumped"] is False and pages_handle[child_id]["link_id"] == "":
                         des_link = "[export_failed:" + child_name + "]"
                     else:
                         des_link = child_name

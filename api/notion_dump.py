@@ -14,7 +14,7 @@ from api.backup_info import BackupInfo
 SEVER_ABS_PATH = os.path.dirname(sys.argv[0])
 CONFIG_FILE_NAME = SEVER_ABS_PATH + "/config.json"
 NotionDump.TMP_DIR = SEVER_ABS_PATH + NotionDump.TMP_DIR
-VERSION = "1.4"
+VERSION = "1.5"
 
 
 class NotionBackup:
@@ -77,6 +77,12 @@ class NotionBackup:
         debug_mode = self.get_key("debug", None, default=False)
         if debug_mode is True:
             NotionDump.DUMP_MODE = NotionDump.DUMP_MODE_DEBUG
+        # Page是否导出属性表的配置
+        NotionDump.S_PAGE_PROPERTIES = self.get_key("page_properties", None, default=True)
+        # 输出时间格式
+        NotionDump.FORMAT_DATETIME = self.get_key("datetime_formate", None, default="%Y/%m/%d-%H:%M:%S")
+        NotionDump.FORMAT_DATE = self.get_key("date_formate", None, default="%Y/%m/%d")
+
         self.dump_api = NotionDumpApi(debug=debug_mode)
 
         if self.get_key("backup_type", None) == "single":
