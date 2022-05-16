@@ -535,7 +535,7 @@ class NotionDumpApi:
 
             # 开始处理该页面下的所有链接，并将主页中的内容重定位
             # 获取到所有的子页面id 将主页中的子页面进行重定位，获取实际链接
-            for child_id in page_info["child_pages"][::-1]:  # 改为逆序遍历
+            for child_id in page_info["child_pages"]:  # 改为逆序遍历
                 # 如果是子id是主页面包含的数据库，给子页面添加 额外的标志位
                 # if self.__db_parser_type == NotionDump.PARSER_TYPE_MD \
                 #         and is_main and pages_handle[child_id]["type"] == "database":
@@ -571,6 +571,8 @@ class NotionDumpApi:
                 else:
                     if pages_handle[child_id]["link_src"] != "":
                         des_link = "[" + child_name + "](" + pages_handle[child_id]["link_src"] + ")"
+                    elif pages_handle[child_id]["dumped"] is False:
+                        des_link = "[unsupported:" + child_name + "]"
                     else:
                         des_link = child_name
                 self.show_log("% __relocate_link file " + root_os_path + ", from " + src_link + " to " + des_link,
