@@ -572,7 +572,7 @@ class NotionDumpApi:
                     if pages_handle[child_id]["link_src"] != "":
                         des_link = "[" + child_name + "](" + pages_handle[child_id]["link_src"] + ")"
                     elif pages_handle[child_id]["dumped"] is False:
-                        des_link = "[unsupported:" + child_name + "]"
+                        des_link = "[export_failed:" + child_name + "]"
                     else:
                         des_link = child_name
                 self.show_log("% __relocate_link file " + root_os_path + ", from " + src_link + " to " + des_link,
