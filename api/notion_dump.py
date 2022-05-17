@@ -82,6 +82,12 @@ class NotionBackup:
         # 输出时间格式
         NotionDump.FORMAT_DATETIME = self.get_key("datetime_formate", None, default="%Y/%m/%d-%H:%M:%S")
         NotionDump.FORMAT_DATE = self.get_key("date_formate", None, default="%Y/%m/%d")
+        # 主题格式
+        NotionDump.S_THEME_TYPE = self.get_key("color_theme", None, default="default")
+        if NotionDump.S_THEME_TYPE == "self_define":
+            NotionDump.S_THEME_SELF_DEFINE = self.get_key("your_color_theme", None, default="default")
+            if NotionDump.S_THEME_SELF_DEFINE == "default":
+                NotionDump.S_THEME_TYPE = "default"
 
         self.dump_api = NotionDumpApi(debug=debug_mode)
 
