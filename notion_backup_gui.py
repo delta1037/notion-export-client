@@ -6,6 +6,7 @@ import os
 import sys
 import time
 
+import api.notion_dump
 from api.notion_dump import NotionBackup
 import tkinter
 from tkinter import *
@@ -40,7 +41,7 @@ class NotionBackupGUI:
 
     # 设置窗口
     def set_init_window(self):
-        self.init_window.title("Notion页面备份")  # 窗口名
+        self.init_window.title("Notion页面备份" + api.notion_dump.VERSION)  # 窗口名
         # 日志
         row_index = 0
         self.log_label = Label(self.init_window, text="日志:")

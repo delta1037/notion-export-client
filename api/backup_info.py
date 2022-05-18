@@ -5,6 +5,7 @@
 import time
 import datetime
 
+import NotionDump
 from NotionDump.Notion.Notion import NotionQuery
 from NotionDump.Dump.database import Database
 from notion_client import Client
@@ -72,7 +73,7 @@ class BackupInfo:
     def get_backup_list(self):
         # 获取操作列表
         for item_line in self.db_handle.dump_to_dic():
-            if item_line[self.__backup_list_map["dump_status"]] == "true":
+            if item_line[self.__backup_list_map["dump_status"]] == NotionDump.MD_BOOL_TRUE:
                 self.backup_id_list.append(item_line)
         return self.backup_id_list
 

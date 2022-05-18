@@ -14,7 +14,7 @@ from api.backup_info import BackupInfo
 SEVER_ABS_PATH = os.path.dirname(sys.argv[0])
 CONFIG_FILE_NAME = SEVER_ABS_PATH + "/config.json"
 NotionDump.TMP_DIR = SEVER_ABS_PATH + NotionDump.TMP_DIR
-VERSION = "1.5"
+VERSION = "2.0"
 
 
 class NotionBackup:
@@ -162,7 +162,7 @@ class NotionBackup:
                 dump_log += "id:" + _page_id + " unknown dump type " + _dump_type_str
                 continue
             _export_child = False
-            if backup[backup_list_map["export_child_page"]] == "true":
+            if backup[backup_list_map["export_child_page"]] == NotionDump.MD_BOOL_TRUE:
                 _export_child = True
             _dump_path = SEVER_ABS_PATH + backup[backup_list_map["dump_path"]]
 
