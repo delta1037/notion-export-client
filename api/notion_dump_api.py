@@ -42,6 +42,8 @@ class NotionDumpApi:
             db_insert_type=DB_INSERT_TYPE_PAGE,
             debug=False
     ):
+        # debug
+        self.debug = debug
 
         self.__token = token
         self.__page_id = page_id
@@ -60,9 +62,6 @@ class NotionDumpApi:
         # 记录数据库插入到嵌入改数据库md文件的位置
         self.__db_relocate_dic = {}  # db_relocate_item 组成的list
         self.main_page_path = ""  # 临时保存主页路径
-
-        # debug
-        self.debug = debug
 
     def show_log(self, debug_str, level=LOG_DEBUG):
         if not self.debug and level == LOG_INFO:
@@ -85,8 +84,15 @@ class NotionDumpApi:
         if self.__query_handle is None:
             self.show_log("query handle is null", level=LOG_INFO)
             return False
-        if self.__page_id is None or self.__page_id == "":
+        if self.__page_id is None:
             self.show_log("page_id is null", level=LOG_INFO)
+            return False
+        t_id_len = len("ed0a3b0f57b34712bc6bafcbdb413d50")
+        if len(self.__page_id) > t_id_len:
+            self.__page_id = self.__page_id[-t_id_len:]
+            self.show_log("page_id is too long, auto use last of id:" + self.__page_id, level=LOG_INFO)
+        elif len(self.__page_id) > t_id_len:
+            self.show_log("page_id is incorrect", level=LOG_INFO)
             return False
         if self.__dump_path is None or self.__dump_path == "":
             self.show_log("dump_path is null", level=LOG_INFO)
@@ -243,6 +249,8 @@ class NotionDumpApi:
 
         # 利用一下json里的page_recursion变量
         for p_id in page_detail_json:
+            if p_id == "errors":
+                continue
             page_detail_json[p_id]["page_recursion"] = False
         self.show_log("start relocate link in file...", level=LOG_INFO)
         self.__relocate_child_page(page_detail_json, main_page_list, is_main=True)
@@ -253,6 +261,11 @@ class NotionDumpApi:
             self.__relocate_db()
             self.after_export_process()
         self.show_log("file link relocate success, check path :" + self.__dump_path, level=LOG_INFO)
+
+        # 显示kernel中出现的错误
+        if len(page_detail_json["errors"]) > 0:
+            self.show_log("kernel dump error list:", level=LOG_INFO)
+            self.show_log(page_detail_json["errors"], level=LOG_INFO)
         return True
 
     # 创建文件目录

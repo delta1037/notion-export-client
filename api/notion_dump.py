@@ -11,10 +11,10 @@ import NotionDump
 from api.notion_dump_api import NotionDumpApi, DB_INSERT_TYPE_PAGE, DB_INSERT_TYPE_LINK
 from api.backup_info import BackupInfo
 
-SEVER_ABS_PATH = os.path.dirname(sys.argv[0])
-CONFIG_FILE_NAME = SEVER_ABS_PATH + "/config.json"
+SEVER_ABS_PATH = os.path.dirname(sys.argv[0]) + "/"
+CONFIG_FILE_NAME = SEVER_ABS_PATH + "config.json"
 NotionDump.TMP_DIR = SEVER_ABS_PATH + NotionDump.TMP_DIR
-VERSION = "2.0"
+VERSION = "2.1"
 
 
 class NotionBackup:
@@ -77,6 +77,8 @@ class NotionBackup:
         debug_mode = self.get_key("debug", None, default=False)
         if debug_mode is True:
             NotionDump.DUMP_MODE = NotionDump.DUMP_MODE_DEBUG
+        else:
+            NotionDump.DUMP_MODE = NotionDump.DUMP_MODE_DEFAULT
         # Page是否导出属性表的配置
         NotionDump.S_PAGE_PROPERTIES = self.get_key("page_properties", None, default=True)
         # 输出时间格式
@@ -88,10 +90,12 @@ class NotionBackup:
             NotionDump.S_THEME_SELF_DEFINE = self.get_key("your_color_theme", None, default="default")
             if NotionDump.S_THEME_SELF_DEFINE == "default":
                 NotionDump.S_THEME_TYPE = "default"
+        # 是否下载所有链接文件
+        NotionDump.FILE_WITH_LINK = self.get_key("file_with_link", None, default=False)
 
         self.dump_api = NotionDumpApi(debug=debug_mode)
 
-        if self.get_key("backup_type", None) == "single":
+        if self.get_key("*backup_type", None) == "single":
             self.start_dump_single()
         else:
             self.start_dump_multi()
@@ -107,19 +111,19 @@ class NotionBackup:
     def start_dump_multi(self):
         print("server version: " + VERSION + "(m)\n")
         # 备份内容需要的token
-        dump_token = self.get_key("backup_token", "multi")
+        dump_token = self.get_key("*backup_token", "multi")
         if len(dump_token) == 0:
             print("dump_token is null")
         # 备份信息页面的token
-        backup_info_token = self.get_key("backup_info_token", "multi")
+        backup_info_token = self.get_key("*backup_info_token", "multi")
         if len(backup_info_token) == 0:
             print("backup_info_token is null")
         # 存储需要备份的内容的数据库id
-        backup_list_id = self.get_key("backup_list_id", "multi")
+        backup_list_id = self.get_key("*backup_list_id", "multi")
         if len(backup_list_id) == 0:
             print("backup_list_id is null")
         # 存储数据库日志记录的数据库ID
-        backup_log_id = self.get_key("backup_log_id", "multi")
+        backup_log_id = self.get_key("*backup_log_id", "multi")
         if len(backup_log_id) == 0:
             print("backup_log_id is null")
         # 两个数据库的对照表
@@ -213,9 +217,9 @@ class NotionBackup:
     def start_dump_single(self):
         print("server version: " + VERSION + "(s)\n")
         # 获取必要的配置
-        _token = self.get_key("backup_token", "single")
-        _page_id = self.get_key("page_id", "single")
-        _dump_type_str = self.get_key("page_type", "single")
+        _token = self.get_key("*backup_token", "single")
+        _page_id = self.get_key("*page_id", "single")
+        _dump_type_str = self.get_key("-page_type", "single")
         _dump_type = NotionDump.DUMP_TYPE_PAGE
         if _dump_type_str == "page":
             _dump_type = NotionDump.DUMP_TYPE_PAGE
@@ -227,7 +231,7 @@ class NotionBackup:
             print("unknown type " + _dump_type_str)
             return
         _export_child = self.get_key("export_child_page", "single")
-        _dump_path = SEVER_ABS_PATH + self.get_key("dump_path", "single")
+        _dump_path = SEVER_ABS_PATH + self.get_key("-dump_path", "single")
 
         # 配置错误按照默认处理
         _page_parser_type = NotionDump.PARSER_TYPE_MD
