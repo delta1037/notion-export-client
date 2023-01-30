@@ -14,7 +14,7 @@ from api.backup_info import BackupInfo
 SEVER_ABS_PATH = os.path.dirname(sys.argv[0]) + "/"
 CONFIG_FILE_NAME = SEVER_ABS_PATH + "config.json"
 NotionDump.TMP_DIR = SEVER_ABS_PATH + NotionDump.TMP_DIR
-VERSION = "2.1"
+VERSION = "2.1.1"
 
 
 class NotionBackup:
@@ -92,6 +92,8 @@ class NotionBackup:
                 NotionDump.S_THEME_TYPE = "default"
         # 是否下载所有链接文件
         NotionDump.FILE_WITH_LINK = self.get_key("file_with_link", None, default=False)
+        # 是否启用缓存
+        NotionDump.USE_BUFFER = self.get_key("use_buffer", None, default=True)
 
         self.dump_api = NotionDumpApi(debug=debug_mode)
 
