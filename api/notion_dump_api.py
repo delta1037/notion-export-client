@@ -12,7 +12,7 @@ from NotionDump.Dump.dump import Dump
 from NotionDump.Notion.Notion import NotionQuery
 from NotionDump.utils import common_op
 
-VERSION = "0.1.13"
+KERNEL_VERSION = NotionDump.__version__
 # 子目录的定制
 CHILD_PAGES_PATH = "./child_pages/"
 DATABASE_PATH = "./databases/"
@@ -183,7 +183,7 @@ class NotionDumpApi:
         return self.__start_export()
 
     def show_param(self):
-        self.show_log("kernel version:" + VERSION, level=LOG_INFO)
+        self.show_log("kernel version:" + KERNEL_VERSION, level=LOG_INFO)
         self.show_log("  token:" + self.__token)
         self.show_log("page_id:" + self.__page_id, level=LOG_INFO)
         type_str = "unknown"
@@ -263,7 +263,7 @@ class NotionDumpApi:
         self.show_log("file link relocate success, check path :" + self.__dump_path, level=LOG_INFO)
 
         # 显示kernel中出现的错误
-        if len(page_detail_json["errors"]) > 0:
+        if "errors" in page_detail_json and len(page_detail_json["errors"]) > 0:
             self.show_log("kernel dump error list:", level=LOG_INFO)
             self.show_log(page_detail_json["errors"], level=LOG_INFO)
         return True

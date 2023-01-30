@@ -146,6 +146,7 @@ class NotionBackup:
             print("没有需要备份的内容")
             return
 
+        dump_status = True
         dump_log = ""
         success_back_list = []
         # 逐个解析需要备份的内容
@@ -203,6 +204,7 @@ class NotionBackup:
                 dump_log += "id:" + _page_id + " backup success "
             else:
                 dump_log += "id:" + _page_id + " backup fail "
+                dump_status = False
 
         # 更新备份列表
         backup_handle.update_backup_list(success_back_list)
@@ -210,9 +212,12 @@ class NotionBackup:
         # 新增备份日志
         if dump_log != "":
             dump_log += "\n"
-        dump_log += "备份成功"
+        if dump_status:
+            dump_log += "备份成功"
+        else:
+            dump_log += "部分备份失败"
         print(dump_log)
-        backup_handle.add_backup_log(status=True, log=dump_log)
+        backup_handle.add_backup_log(status=dump_status, log=dump_log)
 
     def start_dump_single(self):
         print("server version: " + VERSION + "(s)\n")
