@@ -224,7 +224,7 @@ class NotionDumpApi:
             page_detail_json = page_handle.dump_to_file()
             json_name = NotionDump.TMP_DIR + "/page_parser_result.json"
             common_op.save_json_to_file(handle=page_detail_json, json_name=json_name)
-            self.show_log("page dump success, file info save at " + json_name, level=LOG_INFO)
+            self.show_log("page dump end, file info save at " + json_name, level=LOG_INFO)
         else:
             # 从本地加载文件
             json_name = NotionDump.TMP_DIR + "/page_parser_result.json"
@@ -234,6 +234,9 @@ class NotionDumpApi:
         # 主页不存在，可能是导出失败
         if self.__page_id not in page_detail_json.keys():
             self.show_log("page dump fail, can't find main page ", level=LOG_INFO)
+            return False
+        if not page_detail_json[self.__page_id]["dumped"]:
+            self.show_log("main page:" + self.__page_id + " not export success", level=LOG_INFO)
             return False
 
         # 生成文件目录
@@ -299,6 +302,8 @@ class NotionDumpApi:
         return page_name
 
     def __relocate_link(self, file_name, src_str, des_str, show_log=True):
+        if file_name is None or file_name == "" or not os.path.exists(file_name):
+            self.show_log("[ERROR] relocate " + src_str + " -> " + des_str + ", filename not exist!", level=LOG_INFO)
         if show_log:
             self.show_log("@ in file:" + file_name + " " + src_str + " -> " + des_str, level=LOG_INFO)
         file = open(file_name, 'r', encoding='utf-8')
