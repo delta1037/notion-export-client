@@ -1,0 +1,223 @@
+<h1 class="col-lg-offset-2">开发设置</h1>
+<p class="line"></p>
+<form method="POST">
+    <div class="form-group row">
+        <label for="debug" class="col-sm-3 col-form-label text-right">调试</label>
+        <div class="col-sm-2">
+            {% if debug == "true" %}
+                <input type="checkbox" class="form-check-input" id="debug" value="" checked>
+            {% else %}
+                <input type="checkbox" class="form-check-input" id="debug" value="">
+            {% endif %}
+        </div>
+        <label for="use_buffer" class="col-sm-3 col-form-label text-right">缓存加速</label>
+        <div class="col-sm-2">
+            {% if use_buffer == "true" %}
+                <input type="checkbox" class="form-check-input" id="use_buffer" value="" checked>
+            {% else %}
+                <input type="checkbox" class="form-check-input" id="use_buffer" value="">
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="page_properties" class="col-sm-3 col-form-label text-right">文件属性下载</label>
+        <div class="col-sm-2">
+            {% if page_properties == "true" %}
+                <input type="checkbox" class="form-check-input" id="page_properties" value="" checked>
+            {% else %}
+                <input type="checkbox" class="form-check-input" id="page_properties" value="">
+            {% endif %}
+        </div>
+        <label for="file_with_link" class="col-sm-3 col-form-label text-right">文件链接式嵌入</label>
+        <div class="col-sm-2">
+            {% if file_with_link == "true" %}
+                <input type="checkbox" class="form-check-input" id="file_with_link" value="" checked>
+            {% else %}
+                <input type="checkbox" class="form-check-input" id="file_with_link" value="">
+            {% endif %}
+        </div>
+    </div>
+    <p class="line"></p>
+    <div class="form-group row">
+        <label for="date_formate" class="col-sm-3 col-form-label text-right">日期格式</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="date_formate" value="{{ date_formate }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="datetime_formate" class="col-sm-3 col-form-label text-right">时间格式</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="datetime_formate" value="{{ datetime_formate }}">
+        </div>
+    </div>
+    <p class="line"></p>
+    <div class="form-group row">
+        <label for="color_theme" class="col-sm-3 col-form-label text-right">主题选择</label>
+        <div class="col-sm-7">
+            <select class='form-control' id="color_theme">
+                {% for color_theme_type in color_theme_types %}
+                    {% if color_theme_type == color_theme_type_choose %}
+                        <option selected="selected">{{ color_theme_type }}</option>
+                    {% else %}
+                        <option>{{ color_theme_type }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="text-center" style="width: 100%">自定义-文字显示颜色</label><br>
+    </div>
+    <div class="form-group row">
+        {% for f_type in f_types %}
+            <label for="{{ f_type.id_name }}" class="col-sm-2 col-form-label text-right" style="margin: 3px">{{ f_type.name }}</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="{{ f_type.id_name }}" value="{{ f_type.color }}" oninput='set_input_color("{{ f_type.id_name }}")' style="background-color: {{ f_type.color }}; margin: 3px">
+            </div>
+        {% endfor %}
+    </div>
+    <div class="form-group row">
+        <label class="text-center" style="width: 100%">自定义-文字背景颜色</label><br>
+    </div>
+    <div class="form-group row">
+        {% for b_type in b_types %}
+            <label for="{{ b_type.id_name }}" class="col-sm-2 col-form-label text-right" style="margin: 3px">{{ b_type.name }}</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="{{ b_type.id_name }}" value="{{ b_type.color }}" oninput='set_input_color("{{ b_type.id_name }}")' style="background-color: {{ b_type.color }}; margin: 3px">
+            </div>
+        {% endfor %}
+    </div>
+    <div class="form-group row">
+        <label class="text-center" style="width: 100%">自定义-文字背景颜色</label><br>
+    </div>
+    <div class="form-group row">
+        {% for d_type in d_types %}
+            <label for="{{ d_type.id_name }}" class="col-sm-2 col-form-label text-right" style="margin: 3px">{{ d_type.name }}</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="{{ d_type.id_name }}" value="{{ d_type.color }}" oninput='set_input_color("{{ d_type.id_name }}")' style="background-color: {{ d_type.color }}; margin: 3px">
+            </div>
+        {% endfor %}
+    </div>
+    <p class="line"></p>
+    <div class="form-group row">
+        <label class="text-center" style="width: 100%">备份清单列名映射表</label><br>
+    </div>
+    <div class="form-group row">
+        <label for="page_id" class="col-sm-3 col-form-label text-right">页面ID</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="page_id" value="{{ page_id }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="page_type" class="col-sm-3 col-form-label text-right">页面类型</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="page_type" value="{{ page_type }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="dump_path" class="col-sm-3 col-form-label text-right">备份位置</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="dump_path" value="{{ dump_path }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="db_insert_type" class="col-sm-3 col-form-label text-right">数据库嵌入类型</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="db_insert_type" value="{{ db_insert_type }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="dump_status" class="col-sm-3 col-form-label text-right">备份</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="dump_status" value="{{ dump_status }}">
+        </div>
+    </div>
+    <p class="line"></p>
+    <div class="form-group row">
+        <label class="text-center" style="width: 100%">备份日志列名映射表</label><br>
+    </div>
+    <div class="form-group row">
+        <label for="title" class="col-sm-3 col-form-label text-right">时间戳</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="title" value="{{ title }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="date" class="col-sm-3 col-form-label text-right">备份时间</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="date" value="{{ date }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="status" class="col-sm-3 col-form-label text-right">备份状态</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="status" value="{{ status }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="log" class="col-sm-3 col-form-label text-right">备注</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="log" value="{{ log }}">
+        </div>
+    </div>
+    <br>
+    <div class="form-group row text-center">
+        <a type="button" onclick='button_setting_dev("/setting_dev_cancel")' class="btn btn-warning" style="margin-right:60px" aria-pressed="false">取消</a>
+        <a type="button" onclick='button_setting_dev("/setting_dev_ack")' class="btn btn-info" style="margin-left:60px" aria-pressed="false">确认</a>
+    </div>
+</form>
+<script>
+    function set_input_color(id_name) {
+        // console.log(id_name)
+        const color_val = this.document.getElementById(id_name).value;
+        // console.log(color_val)
+        this.document.getElementById(id_name).setAttribute("style", "background-color: " + color_val + "; margin: 3px")
+    }
+    function button_setting_dev(url) {
+        if ( url === "/setting_dev_ack" ){
+            // console.log($("#debug:checked").length)
+            let data = {
+                "debug": $("#debug:checked").length === 1,
+                "page_properties": $("#page_properties:checked").length === 1,
+                "use_buffer": $("#use_buffer:checked").length === 1,
+                "file_with_link": $("#file_with_link:checked").length === 1,
+                "date_formate": $("#date_formate").val(),
+                "datetime_formate": $("#datetime_formate").val(),
+                "theme_type": $("#color_theme option:selected").val(),
+                "page_id": $("#page_id").val(),
+                "page_type": $("#page_type").val(),
+                "dump_path": $("#dump_path").val(),
+                "db_insert_type": $("#db_insert_type").val(),
+                "dump_status": $("#dump_status").val(),
+                "title": $("#title").val(),
+                "date": $("#date").val(),
+                "status": $("#status").val(),
+                "log": $("#log").val(),
+            }
+            {% for f_type in f_types %}
+                data["{{ f_type.id_name }}"] = this.document.getElementById("{{ f_type.id_name }}").value;
+            {% endfor %}
+            {% for b_type in b_types %}
+                data["{{ b_type.id_name }}"] = this.document.getElementById("{{ b_type.id_name }}").value;
+            {% endfor %}
+            {% for d_type in d_types %}
+                data["{{ d_type.id_name }}"] = this.document.getElementById("{{ d_type.id_name }}").value;
+            {% endfor %}
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify(data), // 将data转化为字符串
+                contentType: 'application/json; charset=UTF-8', // 指定contentType
+                dataType: "html",  // 注意：这里是指希望服务端返回的数据类型
+                success: function () { // 返回数据根据结果进行相应的处理
+                    my_alert("系统参数设置成功");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    my_alert(errorThrown);
+                }
+            });
+        }else{
+            window.location.reload()
+        }
+    }
+</script>

@@ -31,7 +31,6 @@ MANIFEST
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
-*.spec
 
 # Installer logs
 pip-log.txt
@@ -134,3 +133,6 @@ release/
 config.json
 dumped_pages/
 config_multi.json
+buffer_file/
+测试-功能测试/
+notion_backup_terminal.spec

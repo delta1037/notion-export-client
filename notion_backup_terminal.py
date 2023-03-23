@@ -6,27 +6,36 @@ import os
 import sys
 import time
 
+from NotionDump import NotionBackupLogger
+
 from api.notion_dump import NotionBackup
 
 SEVER_ABS_PATH = os.path.dirname(sys.argv[0])
 LOG_FILE = SEVER_ABS_PATH + "/dump.log"
 
 
-class Logger(object):
+class Logger(NotionBackupLogger):
     def __init__(self):
+        super().__init__()
         self.terminal = sys.stdout
-        self.log = open(LOG_FILE, "a+", encoding='utf-8')
+        self.__log = open(LOG_FILE, "a+", encoding='utf-8')
         # 输出备份的时间
         backup_time = time.strftime('backup_time: %Y-%m-%d %H:%M:%S\n', time.localtime(time.time()))
         self.terminal.write(backup_time)
-        self.log.write("\n###################################################\n")
-        self.log.write(backup_time)
-        self.log.flush()
+        self.__log.write("\n###################################################\n")
+        self.__log.write(backup_time)
+        self.__log.flush()
 
-    def write(self, message):
-        self.terminal.write(message)
-        self.log.write(message)
-        self.log.flush()
+    def log_debug(self, log_str):
+        self.log_info(log_str)
+
+    def log_info(self, message):
+        self.log("[EXPORT KERNEL] " + str(message))
+
+    def log(self, message):
+        self.terminal.write(message + "\n")
+        self.__log.write(message + "\n")
+        self.__log.flush()
 
     def flush(self):
         pass

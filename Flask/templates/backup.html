@@ -1,0 +1,49 @@
+<div style="text-align:center;width: 100%;height: 85%">
+    <textarea style="width: 90vw;height: 80vh;outline: none;" id="log_area" readonly></textarea>
+</div>
+<br>
+<div style="text-align:center">
+    <a type="button" onclick='button_start_export("/start_export")' class="btn btn-info" aria-pressed="false" >开始导出</a>
+</div>
+<script type="text/javascript" src="{{ url_for('local_static', filename='jquery/js/jquery.min.js') }}"></script>
+<script type="text/javascript">
+    function log_handler(){
+        $.ajax({
+            type: "POST",
+            url: "/get_msg",
+            data: "", // 将data转化为字符串
+            contentType: 'application/json; charset=UTF-8', // 指定contentType
+            dataType: "text",  // 注意：这里是指希望服务端返回的数据类型
+            success: function (data) { // 返回数据根据结果进行相应的处理
+                if(data && data !== ""){
+                    // console.log(data)
+                    const log_area = $('#log_area');
+                    // log_area.append(data); // 数据量大的时候会损失掉一部分
+                    log_area.val(log_area.val() + data)
+                    if(log_area.length)
+                        log_area.scrollTop(log_area[0].scrollHeight - log_area.height());
+                }
+            }
+        });
+    }
+
+    $(document).ready(function(){
+        setInterval(log_handler, 1000)
+    });
+
+    function button_start_export(url) {
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: "", // 将data转化为字符串
+            contentType: 'application/json; charset=UTF-8', // 指定contentType
+            dataType: "html",  // 注意：这里是指希望服务端返回的数据类型
+            success: function () { // 返回数据根据结果进行相应的处理
+                my_alert("备份程序开始导出");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                my_alert(errorThrown);
+            }
+        });
+    }
+</script>

@@ -40,7 +40,8 @@ class NotionDumpApi:
             page_parser_type=NotionDump.PARSER_TYPE_MD,
             db_parser_type=NotionDump.PARSER_TYPE_PLAIN,
             db_insert_type=DB_INSERT_TYPE_PAGE,
-            debug=False
+            debug=False,
+            logger=None
     ):
         # debug
         self.debug = debug
@@ -63,11 +64,20 @@ class NotionDumpApi:
         self.__db_relocate_dic = {}  # db_relocate_item 组成的list
         self.main_page_path = ""  # 临时保存主页路径
 
+        # 日志控制
+        self.logger = logger
+
     def show_log(self, debug_str, level=LOG_DEBUG):
         if not self.debug and level == LOG_INFO:
-            print(debug_str)
+            if self.logger is not None:
+                self.logger.log("[EXPORT CLIENT] " + str(debug_str))
+            else:
+                print(debug_str)
         elif self.debug:
-            print(debug_str)
+            if self.logger is not None:
+                self.logger.log("[EXPORT CLIENT] " + str(debug_str))
+            else:
+                print(debug_str)
 
     def __init_query_handle(self):
         if self.__token is None:
@@ -242,8 +252,11 @@ class NotionDumpApi:
         # 生成文件目录
         self.__gen_dir()
         main_page_list = [self.__page_id]
-        dump_path_last_no_path = self.__dump_path[0:self.__dump_path.rfind('/')]
+        dump_path = self.__dump_path.replace("\\", "/")
+        dump_path_last_no_path = dump_path[0:dump_path.rfind('/')]
         dump_path_last = dump_path_last_no_path[dump_path_last_no_path.rfind('/') + 1:]
+        self.show_log("dump_path_last_no_path:" + dump_path_last_no_path, level=LOG_INFO)
+        self.show_log("dump_path_last:" + dump_path_last, level=LOG_INFO)
         self.show_log("page dump main page name: " + dump_path_last, level=LOG_INFO)
         if dump_path_last == "":
             page_detail_json[self.__page_id]["page_name"] = "main_page"

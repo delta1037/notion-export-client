@@ -1,0 +1,86 @@
+{% extends "bootstrap/base.html" %}
+{% block scripts %}
+<script type="text/javascript" src="{{ url_for('local_static', filename='jquery/js/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('local_static', filename='bootstrap/js/bootstrap.js') }}"></script>
+<!--<script type="text/javascript" src="{{ url_for('local_static', filename='index.js') }}"></script>-->
+{%- endblock scripts %}
+{%- block styles %}
+<link rel="stylesheet" href="{{ url_for('local_static', filename='font-awesome/css/font-awesome.css') }}" type="text/css">
+<link rel="stylesheet" href="{{ url_for('local_static', filename='bootstrap/css/bootstrap.css') }}" type="text/css">
+<link rel="stylesheet" href="{{ url_for('local_static', filename='index.css') }}" type="text/css">
+{%- endblock styles %}
+
+{% block head %}
+{{super()}}
+{% endblock %}
+
+{% block content %}
+<div id="wrapper">
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
+            <li>
+                <a href="/"><span class="fa-stack fa-lg pull-left"><i class="fa fa-database fa-stack-1x "></i></span>备份</a>
+            </li>
+            <li>
+                <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-wrench fa-stack-1x "></i></span>设置</a>
+                <ul class="nav-pills nav-stacked" style="list-style-type:none;">
+                    <li><a href="/setting_base" onclick=''>基础设置</a></li>
+                    <li><a href="/setting_dev" onclick=''>开发设置</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="/tutorial"><span class="fa-stack fa-lg pull-left"><i class="fa fa-book fa-stack-1x "></i></span>教程</a>
+            </li>
+            <li>
+                <a href="/donate"><span class="fa-stack fa-lg pull-left"><i class="fa fa-jpy fa-stack-1x "></i></span>捐助</a>
+            </li>
+        </ul>
+    </div>
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div id="main_content">
+            {{ main_content | safe }}
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script type="text/javascript" src="{{ url_for('local_static', filename='jquery/js/jquery.min.js') }}"></script>
+<script>
+    function initMenu() {
+        $('#menu ul').hide();
+        $('#menu ul').children('.current').parent().show();
+        //$('#menu ul:first').show();
+        $('#menu li a').click(
+            function() {
+                const checkElement = $(this).next();
+                if ((checkElement.is('ul')) && (checkElement.is(':visible'))) {
+                    return false;
+                }
+                if ((checkElement.is('ul')) && (!checkElement.is(':visible'))) {
+                    $('#menu ul:visible').slideUp('normal');
+                    checkElement.slideDown('normal');
+                    return false;
+                }
+            }
+        );
+    }
+    $(document).ready(function() {
+        $("#wrapper").toggleClass("toggled-2");
+        $('#menu ul').hide();
+        initMenu();
+    });
+
+    //公共提示框
+    function my_alert(str) {
+        const div = '<div class="mark"></div>';
+        $('body').append(div)
+        $('.mark').html(str);
+        $('.mark').show();
+        setTimeout(function() {
+            $('.mark').hide();
+            $('.mark').remove();
+        }, 1500)
+    }
+</script>
+{% endblock %}

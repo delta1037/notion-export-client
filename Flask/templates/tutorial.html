@@ -1,0 +1,83 @@
+<h1 class="col-lg-offset-3">教程页面</h1>
+<p class="line"></p>
+<div id="url-list">
+    <div class="url-block">
+        <span class="url" resource="https://www.notion.so/delta1037/Notion-921e6b4ea44046c6935bcb2c69453196">Notion备份工具主页</span>
+        <button class="copy-btn">复制</button>
+    </div>
+    <p class="line"></p>
+    <div class="url-block">
+        <span class="url" resource="https://www.bilibili.com/video/BV13A411r7K8">Bilibili备份工具教程</span>
+        <button class="copy-btn">复制</button>
+    </div>
+    <div class="url-block">
+        <span class="url" resource="https://www.bilibili.com/video/BV19u411C7cQ">Bilibili定时备份教程</span>
+        <button class="copy-btn">复制</button>
+    </div>
+    <p class="line"></p>
+    <div class="url-block">
+        <span class="url" resource="https://github.com/delta1037/notion-export-client">客户端源代码</span>
+        <button class="copy-btn">复制</button>
+    </div>
+    <div class="url-block">
+        <span class="url" resource="https://github.com/delta1037/notion-export-kernel">备份内核代码</span>
+        <button class="copy-btn">复制</button>
+    </div>
+    <p class="line"></p>
+    <div class="url-block">
+        <span class="url">QQ交流群：917606741</span>
+    </div>
+</div>
+<style>
+    #url-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 5px;
+    }
+
+    .url-block {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background-color: #f2f2f2;
+        border-radius: 5px;
+    }
+
+    .url {
+        margin-right: 10px;
+    }
+
+    .copy-btn {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+<script>
+    // 获取所有URL块和复制按钮
+    const urlBlocks = document.querySelectorAll('.url-block');
+    const copyBtns = document.querySelectorAll('.copy-btn');
+
+    // 给每个复制按钮添加点击事件
+    copyBtns.forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+            // 获取对应的URL文本
+            const urlText = urlBlocks[i].querySelector('.url').getAttribute("resource");
+            // 创建一个临时文本输入框，并将URL文本复制到其中
+            const tempInput = document.createElement('input');
+            tempInput.value = urlText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            // 删除临时输入框
+            document.body.removeChild(tempInput);
+                // 弹出复制成功提示
+                my_alert('URL已复制到剪贴板！');
+            });
+    });
+</script>
+

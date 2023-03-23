@@ -1,0 +1,216 @@
+<h1 class="col-lg-offset-3">基础设置</h1>
+<p class="line"></p>
+<style>
+    .star::after{
+        content:"*";
+        color:red
+    }
+</style>
+<form method="POST">
+    <div class="form-group row">
+        <label for="backup_root_path" class="col-sm-3 col-form-label text-right star">备份根目录</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" id="backup_root_path" value="{{ backup_root_path }}" placeholder="空表示与软件路径一致">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="display_rows" class="col-sm-3 col-form-label text-right star">导出类型</label>
+        <div class="col-sm-7">
+            <select class='form-control' id="display_rows" onchange="chg_visible()">
+                {% for display_rows in display_rowss %}
+                    {% if display_rows == display_rows_choose %}
+                        <option selected="selected">{{ display_rows }}</option>
+                    {% else %}
+                        <option>{{ display_rows }}</option>
+                    {% endif %}
+                {% endfor%}
+            </select>
+        </div>
+    </div>
+    <div id="single_export">
+        <div class="form-group row">
+            <label for="single-readonly-token" class="col-sm-3 col-form-label text-right star">只读Token</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="single-readonly-token" value="{{ single_readonly_token }}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="single-page-id" class="col-sm-3 col-form-label text-right star">备份页面ID</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="single-page-id" value="{{ single_page_id }}">
+            </div>
+        </div>
+        <p class="line"></p>
+        <div class="form-group row">
+            <label for="single_page_type" class="col-sm-3 col-form-label text-right">页面类型</label>
+            <div class="col-sm-7">
+                <select class='form-control' id="single_page_type">
+                    {% for single_page_type in single_page_types %}
+                        {% if single_page_type == single_page_type_choose %}
+                            <option selected="selected">{{ single_page_type }}</option>
+                        {% else %}
+                            <option>{{ single_page_type }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="single-dump-path" class="col-sm-3 col-form-label text-right">备份位置</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="single-dump-path" value="{{ single_dump_path }}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="database_insert_type" class="col-sm-3 col-form-label text-right">数据库嵌入类型</label>
+            <div class="col-sm-7">
+                <select class='form-control' id="database_insert_type">
+                    {% for database_insert_type in database_insert_types %}
+                        {% if database_insert_type == database_insert_type_choose %}
+                            <option selected="selected">{{ database_insert_type }}</option>
+                        {% else %}
+                            <option>{{ database_insert_type }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="multi_export">
+        <div class="form-group row">
+            <label for="multi-readonly-token" class="col-sm-3 col-form-label text-right star">备份内容只读Token</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="multi-readonly-token" value="{{ multi_readonly_token }}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="multi-rw-token" class="col-sm-3 col-form-label text-right star">清单页面读写Token</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="multi-rw-token" value="{{ multi_rw_token }}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="multi-page-id" class="col-sm-3 col-form-label text-right star">清单数据库ID</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="multi-page-id" value="{{ multi_page_id }}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="multi-log-id" class="col-sm-3 col-form-label text-right star">日志数据库ID</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="multi-log-id" value="{{ multi_log_id }}">
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="form-group row text-center">
+        <a type="button" onclick='button_setting_base("/setting_base_cancel")' class="btn btn-warning" style="margin-right:60px" aria-pressed="false">取消</a>
+        <a type="button" onclick='button_setting_base("/setting_base_ack")' class="btn btn-info" style="margin-left:60px" aria-pressed="false">确认</a>
+    </div>
+</form>
+<script type="text/javascript" src="{{ url_for('local_static', filename='jquery/js/jquery.min.js') }}"></script>
+<script>
+    $(document).ready(function(){
+        chg_visible()
+    });
+    function chg_visible(){
+        const value = $("#display_rows option:selected").val();
+        // console.log(value)
+        if (value === "单页面备份"){
+            $("#single_export").show();
+            $("#multi_export").hide();
+        }else{
+            $("#single_export").hide();
+            $("#multi_export").show();
+        }
+    }
+    function button_setting_base(url) {
+        const display_type = $("#display_rows option:selected").val();
+        if ( url === "/setting_base_ack" ){
+            // 将数据送入后端存储
+            let data = {
+                "display_type": display_type,
+                "backup_root_path": $("#backup_root_path").val()
+            }
+            if (display_type === "单页面备份"){
+                // 验证
+                const id_len = $("#single-page-id").val().length
+                if (id_len !== 32){
+                    my_alert("备份页面ID长度错误: " + id_len);
+                    return
+                }
+                data["single_readonly_token"] = $("#single-readonly-token").val();
+                data["single_page_id"] = $("#single-page-id").val();
+
+                data["single_page_type"] = $("#single_page_type option:selected").val();
+                data["single_dump_path"] = $("#single-dump-path").val();
+                data["database_insert_type"] = $("#database_insert_type option:selected").val();
+            }else{
+                // 验证
+                const page_id_len = $("#multi-page-id").val().length
+                console.log(page_id_len)
+                if (page_id_len !== 32){
+                    my_alert("备份页面ID长度错误: " + page_id_len);
+                    return
+                }
+                const log_id_len = $("#multi-log-id").val().length
+                if (log_id_len !== 32){
+                    my_alert("日志数据库ID长度错误: " + log_id_len);
+                    return
+                }
+                data["multi_readonly_token"] = $("#multi-readonly-token").val()
+                data["multi_rw_token"] = $("#multi-rw-token").val()
+                data["multi_page_id"] = $("#multi-page-id").val()
+                data["multi_log_id"] = $("#multi-log-id").val()
+            }
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify(data), // 将data转化为字符串
+                contentType: 'application/json; charset=UTF-8', // 指定contentType
+                dataType: "html",  // 注意：这里是指希望服务端返回的数据类型
+                success: function () { // 返回数据根据结果进行相应的处理
+                    my_alert("系统参数设置成功");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    my_alert(errorThrown);
+                }
+            });
+        }else{
+            window.location.reload()
+            // let data = {
+            //     "display_type": display_type,
+            // }
+            // $.ajax({
+            //     type: "POST",
+            //     url: url,
+            //     data: JSON.stringify(data), // 将data转化为字符串
+            //     contentType: 'application/json; charset=UTF-8', // 指定contentType
+            //     dataType: "json",  // 注意：这里是指希望服务端返回的数据类型
+            //     success: function (data) { // 返回数据根据结果进行相应的处理
+            //         my_alert("系统参数取消成功");
+            //         // console.log(data)
+            //         // 设置各个字段的值
+            //         if (data["display_type"] === "单页面备份"){
+            //             $("#display_rows").val("单页面备份").change()
+            //             $("#single-readonly-token").val(data["single_readonly_token"])
+            //             $("#single-page-id").val(data["single_page_id"])
+            //             $("#single_page_type").val(data["single_page_type_choose"]).change()
+            //             $("#single-dump-path").val(data["single_dump_path"])
+            //             $("#database_insert_type").val(data["database_insert_type_choose"]).change()
+            //         }else{
+            //             $("#display_rows").val("多页面备份").change()
+            //             // console.log(data["multi_readonly_token"])
+            //             $("#multi-readonly-token").val(data["multi_readonly_token"])
+            //             $("#multi-rw-token").val(data["multi_rw_token"])
+            //             $("#multi-page-id").val(data["multi_page_id"])
+            //             $("#multi-log-id").val(data["multi_log_id"])
+            //         }
+            //     },
+            //     error: function (XMLHttpRequest, textStatus, errorThrown) {
+            //         my_alert(errorThrown);
+            //     }
+            // });
+        }
+    }
+</script>
