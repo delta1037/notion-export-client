@@ -316,7 +316,8 @@ class NotionDumpApi:
 
     def __relocate_link(self, file_name, src_str, des_str, show_log=True):
         if file_name is None or file_name == "" or not os.path.exists(file_name):
-            self.show_log("[ERROR] relocate " + src_str + " -> " + des_str + ", filename not exist!", level=LOG_INFO)
+            self.show_log("[ERROR] relocate " + src_str + " -> " + des_str + ", filename [" + str(file_name) + "] not exist!", level=LOG_INFO)
+            return
         if show_log:
             self.show_log("@ in file:" + file_name + " " + src_str + " -> " + des_str, level=LOG_INFO)
         file = open(file_name, 'r', encoding='utf-8')
@@ -660,23 +661,23 @@ class NotionDumpApi:
             # if "db_be_rel" not in self.__db_relocate_dic[db_os_path].keys():
             #     os.remove(db_os_path)
 
-    def after_export_process(self):
+    def after_export_process(self, show_log=False):
         # 后期处理，主要是为了修正主页中的链接问题，和精简子目录中的链接
 
         # 主页中的数据库中的链接部分需要重新定位
-        self.__relocate_link(self.main_page_path, "../child_pages/", "child_pages/", show_log=False)
-        self.__relocate_link(self.main_page_path, "../files/", "files/", show_log=False)
+        self.__relocate_link(self.main_page_path, "../child_pages/", "child_pages/", show_log=show_log)
+        self.__relocate_link(self.main_page_path, "../files/", "files/", show_log=show_log)
 
         # 子页面中的对页面的链接需要精简 self.__dump_path + CHILD_PAGES_PATH
         self.show_log("^ fix page files", level=LOG_INFO)
         for file_name in os.listdir(self.__dump_path + CHILD_PAGES_PATH):
             if file_name[file_name.rfind(".")+1:] == "md":
                 # print(file_name)
-                self.__relocate_link(self.__dump_path + CHILD_PAGES_PATH + file_name, "../child_pages/", "", show_log=False)
+                self.__relocate_link(self.__dump_path + CHILD_PAGES_PATH + file_name, "../child_pages/", "", show_log=show_log)
         # 子数据库中的对数据库的链接需要精简 self.__dump_path + DATABASE_PATH
         self.show_log("^ fix database files", level=LOG_INFO)
         for file_name in os.listdir(self.__dump_path + DATABASE_PATH):
             if file_name[file_name.rfind(".") + 1:] == "md":
                 # print(file_name)
                 self.__relocate_link(self.__dump_path + DATABASE_PATH + file_name, "../databases/", "",
-                                     show_log=False)
+                                     show_log=show_log)
