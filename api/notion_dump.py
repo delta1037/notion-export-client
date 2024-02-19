@@ -14,7 +14,7 @@ SEVER_ABS_PATH = os.path.dirname(sys.argv[0])
 NotionDump.TMP_DIR = os.path.normpath(SEVER_ABS_PATH + "/buffer_file") + "/"
 NotionDump.BUFFER_FILE = os.path.normpath(NotionDump.TMP_DIR + "/notion_download_buffer.json")
 
-VERSION = "3.0.0"
+VERSION = "3.0.1"
 
 
 class NotionBackup:
@@ -180,7 +180,9 @@ class NotionBackup:
                 dump_status = False
 
         # 更新备份列表
-        backup_handle.update_backup_list(success_back_list)
+        auto_check_off = self.config.get_key("auto_check_off", "multi", default=True)
+        if auto_check_off:
+            backup_handle.update_backup_list(success_back_list)
 
         # 新增备份日志
         if dump_log != "":

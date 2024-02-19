@@ -130,7 +130,6 @@ dmypy.json
 .tmp/
 *_result.json
 release/
-config.json
 dumped_pages/
 config_multi.json
 buffer_file/

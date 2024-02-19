@@ -1,7 +1,10 @@
 # author: delta1037
 # Date: 2022/05/01
 # mail:geniusrabbit@qq.com
-# 打包代码 pyinstaller -F -c -i notion-dump.ico notion_backup_terminal.py -p api/notion_dump.py -p api/notion_dump_api.py -p api/backup_info.py
+# 终端-打包代码 pyinstaller -F -c -i notion-dump.ico notion_backup_terminal.py -p api/notion_dump.py -p api/notion_dump_api.py -p api/backup_info.py
+# 终端-打包代码 pyinstaller notion_backup_terminal.spec
+# 后台-打包代码 pyinstaller -F -i notion-dump.ico notion_backup_terminal.py -p api/notion_dump.py -p api/notion_dump_api.py -p api/backup_info.py
+# 后台-打包代码 pyinstaller notion_backup_background.spec
 import os
 import sys
 import time
@@ -21,7 +24,8 @@ class Logger(NotionBackupLogger):
         self.__log = open(LOG_FILE, "a+", encoding='utf-8')
         # 输出备份的时间
         backup_time = time.strftime('backup_time: %Y-%m-%d %H:%M:%S\n', time.localtime(time.time()))
-        self.terminal.write(backup_time)
+        if self.terminal is not None:
+            self.terminal.write(backup_time)
         self.__log.write("\n###################################################\n")
         self.__log.write(backup_time)
         self.__log.flush()
@@ -33,7 +37,8 @@ class Logger(NotionBackupLogger):
         self.log("[EXPORT KERNEL] " + str(message))
 
     def log(self, message):
-        self.terminal.write(message + "\n")
+        if self.terminal is not None:
+            self.terminal.write(message + "\n")
         self.__log.write(message + "\n")
         self.__log.flush()
 

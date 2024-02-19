@@ -1,0 +1,72 @@
+{
+    "*backup_type": "multi",
+    "single": {
+        "*backup_token": "secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "*page_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "-page_type": "page",
+        "-dump_path": "测试-功能测试2",
+        "export_child_page": true,
+        "page_parser_type": "md",
+        "db_parser_type": "md",
+        "db_insert_type": "content"
+    },
+    "multi": {
+        "*backup_token": "secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "*backup_info_token": "secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "*backup_list_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "*backup_log_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "backup_list_map": {
+            "page_id": "页面ID",
+            "page_type": "页面类型",
+            "dump_path": "备份位置",
+            "dump_status": "备份",
+            "db_insert_type": "数据库嵌入类型"
+        },
+        "backup_log_map": {
+            "title": "时间戳",
+            "date": "备份时间",
+            "status": "备份状态",
+            "log": "备注"
+        },
+        "auto_check_off": true
+    },
+    "use_buffer": true,
+    "debug": false,
+    "auto_close": true,
+    "page_properties": true,
+    "datetime_formate": "%Y/%m/%d-%H:%M:%S",
+    "date_formate": "%Y/%m/%d",
+    "file_with_link": false,
+    "color_theme": "light",
+    "your_color_theme": {
+        "f_gray": "#787774",
+        "f_brown": "#9F6B53",
+        "f_orange": "#D9730D",
+        "f_yellow": "#CB912F",
+        "f_green": "#448361",
+        "f_blue": "#337EA9",
+        "f_purple": "#9065B0",
+        "f_pink": "#C14C8A",
+        "f_red": "#D44C47",
+        "b_gray": "#F1F1EF",
+        "b_brown": "#F4EEEE",
+        "b_orange": "#FBECDD",
+        "b_yellow": "#FBF3DB",
+        "b_green": "#EDF3EC",
+        "b_blue": "#E7F3F8",
+        "b_purple": "#F4F0F7CC",
+        "b_pink": "#F9EEF3CC",
+        "b_red": "#FDEBEC",
+        "d_light_gray": "#E3E2E080",
+        "d_gray": "#E3E2E0",
+        "d_brown": "#EEE0DA",
+        "d_orange": "#FADEC9",
+        "d_yellow": "#FDECC8",
+        "d_green": "#DBEDDB",
+        "d_blue": "#D3E5EF",
+        "d_purple": "#E8DEEE",
+        "d_pink": "#F5E0E9",
+        "d_red": "#FFE2DD"
+    },
+    "backup_root_path": "G:\\Notion备份"
+}
